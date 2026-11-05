@@ -133,6 +133,19 @@ describe("redirect handler", () => {
     expect(inserted).toHaveLength(0);
   });
 
+  it("shows the friendly page, not an error, if the database client cannot even be created", async () => {
+    const admin = await import("@/lib/supabase/admin");
+    const spy = vi.spyOn(admin, "supabaseAdmin").mockImplementation(() => {
+      throw new Error("Missing environment variable SUPABASE_SECRET_KEY.");
+    });
+    const quiet = vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = await handleTap(req(), "abcDEF1234", "nfc");
+    expect(res.status).toBe(302);
+    expect(new URL(res.headers.get("location")!).pathname).toBe("/inactive");
+    spy.mockRestore();
+    quiet.mockRestore();
+  });
+
   it("rejects malformed codes without touching the database", async () => {
     const res = await handleTap(req(), "../etc/passwd", "nfc");
     expect(new URL(res.headers.get("location")!).pathname).toBe("/inactive");

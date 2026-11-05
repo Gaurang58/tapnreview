@@ -20,6 +20,19 @@ const DUPLICATE_WINDOW_MINUTES = 30;
  *    the customer down.
  */
 export async function handleTap(request: Request, code: string, method: TapMethod): Promise<Response> {
+  try {
+    return await resolveTap(request, code, method);
+  } catch (err) {
+    // A customer must never see a raw error, whatever went wrong (missing key, outage).
+    console.error("tap handling failed", err);
+    return NextResponse.redirect(new URL("/inactive", request.url), {
+      status: 302,
+      headers: { "Cache-Control": "no-store" },
+    });
+  }
+}
+
+async function resolveTap(request: Request, code: string, method: TapMethod): Promise<Response> {
   const inactive = () =>
     NextResponse.redirect(new URL("/inactive", request.url), {
       status: 302,

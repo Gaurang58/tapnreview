@@ -72,3 +72,30 @@ Not yet verified (needs the real project): that Supabase accepts the migrations 
 **Note on migration history.** Applying through the Supabase tool recorded versions `20261105224342` to `...224508`-style timestamps, different from the filenames in `supabase/migrations/`. If `supabase db push` is used later it may try to re-apply them; run `supabase migration repair` first or keep applying through the tool. Two filenames (`..004`, `..005`) were written after the first three were applied.
 
 **Not yet done:** the live API access tests (`npm run test:access`) wait for the demo seed (milestone 7); nothing has been pushed to GitHub.
+
+## 6 November 2026: milestone 4, sign-in, invite-only accounts, role-aware navigation
+
+**Built**
+
+- Sign-in (`/login`), set-password (`/set-password`), invitation landing (`/auth/confirm`), sign-out, and a clean-up route for switched-off logins (`/auth/inactive`).
+- Session helpers (`requireSession`), pure role rules (`lib/auth/roles.ts`) with 10 unit tests, dashboard shell (sidebar on desktop, bottom bar on phones), an Overview placeholder that lists the areas and stores the signed-in role can see, and a People page with invite and switch-on/off.
+- Invitations use the Supabase admin API through a server action that checks the inviter's rights first and writes an audit entry. They produce a one-time link for the inviter to pass on rather than sending email (see decision below).
+
+**Decisions**
+
+- *No invitation email.* Supabase's built-in email is rate-limited on the free plan and needs template changes to work with this app's sign-in flow. Showing a copyable one-time link is more reliable for a demo; sending email can be added later without changing the rules.
+- *Password minimum is 10 characters,* checked in the app.
+- *Navigation lists only built pages,* so no link leads to a 404 (`built` flag in `NAV`).
+
+**Problems found and fixed**
+
+- A redirect loop was possible: the proxy sends signed-in people away from `/login`, and a page can't clear a cookie. Switched-off or role-less users now go through `/auth/inactive`, a route that signs out first.
+- While smoke-testing, `/t/<code>` returned a raw 500 when the secret key was missing. The handler now catches any failure and shows the friendly "card isn't active" page; a unit test covers it.
+
+**Checked**
+
+`npm run lint`, `npm run typecheck`, 27 unit tests and `next build --webpack` pass. Against the built app: `/overview`, `/people` and `/set-password` redirect signed-out visitors to `/login`; the login page shows the right notices; a bad invitation link is rejected; `/t/…` and `/q/…` show the friendly page for an unknown code.
+
+**Not yet verified (needs the secret key and seeded logins):** signing in as each role, a full invitation, and switching someone off. These are covered by the demo seed in milestone 7. `.env.local` was created with the project URL and publishable key only; `SUPABASE_SECRET_KEY` is blank and must be pasted in by you.
+
+**Still to do in the Supabase dashboard:** switch off public sign-ups and raise the minimum password length (see `docs/01-setup.md`).
