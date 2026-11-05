@@ -12,7 +12,7 @@ const DUPLICATE_WINDOW_MINUTES = 30;
 /**
  * The only code path a customer ever touches.
  *
- * 1. Look up the tag and its store with the service-role client (customers are
+ * 1. Look up the tag and its store (one query) with the service-role client (customers are
  *    not signed in, and RLS would otherwise hide everything).
  * 2. If anything is missing or switched off, show the friendly page.
  * 3. Otherwise 302 to Google immediately with Cache-Control: no-store.
@@ -29,9 +29,10 @@ export async function handleTap(request: Request, code: string, method: TapMetho
   if (!/^[A-Za-z0-9_-]{8,64}$/.test(code)) return inactive();
 
   const db = supabaseAdmin();
+  // One round trip: the tag and its store together.
   const { data: tag, error } = await db
     .from("tags")
-    .select("id, is_active, retired_at, store_id")
+    .select("id, is_active, retired_at, store_id, stores(id, is_active, google_review_url)")
     .eq("public_code", code)
     .maybeSingle();
 
@@ -41,16 +42,7 @@ export async function handleTap(request: Request, code: string, method: TapMetho
   }
   if (!tag || !tag.is_active || tag.retired_at) return inactive();
 
-  const { data: store, error: storeError } = await db
-    .from("stores")
-    .select("id, is_active, google_review_url")
-    .eq("id", tag.store_id)
-    .maybeSingle();
-
-  if (storeError) {
-    console.error("store lookup failed", { code, error: storeError.message });
-    return inactive();
-  }
+  const store = Array.isArray(tag.stores) ? tag.stores[0] : tag.stores;
   if (!store || !store.is_active || !isAllowedReviewUrl(store.google_review_url)) return inactive();
 
   const response = NextResponse.redirect(store.google_review_url, {

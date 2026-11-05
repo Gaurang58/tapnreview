@@ -25,8 +25,6 @@ const BOT_PATTERNS: RegExp[] = [
   /iframely/i,
   /embedly/i,
   /redditbot/i,
-  /snapchat/i,
-  /viber/i,
   /\bbot\b/i,
   /crawler/i,
   /spider/i,
@@ -38,6 +36,9 @@ const BOT_PATTERNS: RegExp[] = [
   /go-http-client/i,
 ];
 
+// Not listed on purpose: Snapchat, Viber and similar names also appear in the
+// in-app browsers real customers use. Their genuine preview fetchers carry
+// "preview" or "bot" in the agent and are caught by the generic patterns above.
 export function isBotUserAgent(userAgent: string | null | undefined): boolean {
   if (!userAgent) return true; // Real phones always send one.
   return BOT_PATTERNS.some((re) => re.test(userAgent));

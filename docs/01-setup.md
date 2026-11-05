@@ -1,0 +1,40 @@
+# 01 Setup
+
+This page takes you from a fresh laptop to a running copy of Tap Review. It is updated at each milestone; sections for sign-in, deployment and seeding are added as those parts are built.
+
+## Accounts you need
+
+1. **GitHub**: repository `Gaurang58/tapnreview`.
+2. **Supabase**: one project in the London region. Keep its URL, publishable key and secret key.
+3. **Vercel**: a new project made from the GitHub repository (milestone 8).
+
+## Install
+
+| Command | What it does |
+| --- | --- |
+| `nvm use` | Switches to Node 22, the version this project is built on |
+| `npm install` | Downloads the libraries listed in `package.json` |
+| `cp .env.example .env.local` | Makes your private settings file (never committed) |
+
+## Environment variables
+
+Set these in `.env.local` locally and in Vercel (Settings, Environment Variables) when deployed.
+
+| Variable | What it is |
+| --- | --- |
+| `PUBLIC_APP_URL` | The address of the app, no trailing slash. It is written into QR codes and NFC tags, so changing domain later is a single edit here |
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Safe-to-share key used by the browser; Row Level Security still protects the data |
+| `SUPABASE_SECRET_KEY` | Powerful key that bypasses access rules. Server only. Never put it in the browser or commit it |
+| `SUPABASE_PROJECT_REF` | The part of the project URL before `.supabase.co` |
+| `VISITOR_HASH_SALT` | A long random string mixed into the anonymous visitor fingerprint |
+| `DEMO_*_EMAIL` / `DEMO_*_PASSWORD` | The four demo logins created by the seed script (milestone 7) |
+| `REAL_STORE_PLACE_ID` | Google Place ID for the physical card's store |
+
+## Database
+
+The database is described by the SQL files in `supabase/migrations/`, applied in order with `supabase db push` after `supabase login` and `supabase link --project-ref <ref>`. **Do not apply them until the access rules have been reviewed** (see the build log). To check the rules without touching Supabase at all, run `npm run test:db`.
+
+## Run locally
+
+`npm run dev` starts the app at http://localhost:3000.

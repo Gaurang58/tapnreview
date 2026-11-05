@@ -23,3 +23,6 @@ supabase/.branches/
 .DS_Store
 npm-debug.log*
 coverage/
+
+# claude code local settings
+.claude/

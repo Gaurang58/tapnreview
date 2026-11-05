@@ -1,6 +1,8 @@
 /**
  * Configuration comes only from environment variables. Public values are safe
  * in the browser; everything else must be read through server-only modules.
+ * Values are read when first used (not at import time) so `next build` works
+ * on a machine without secrets.
  */
 function required(name: string, value: string | undefined): string {
   if (!value) {
@@ -10,11 +12,12 @@ function required(name: string, value: string | undefined): string {
 }
 
 export const publicEnv = {
-  supabaseUrl: required("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL),
-  supabasePublishableKey: required(
-    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-  ),
+  get supabaseUrl() {
+    return required("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL);
+  },
+  get supabasePublishableKey() {
+    return required("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
+  },
 };
 
 /** Base URL baked into QR codes and NFC links. One variable, one place. */

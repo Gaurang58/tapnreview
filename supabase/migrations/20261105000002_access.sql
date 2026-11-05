@@ -225,7 +225,7 @@ create or replace function profiles_guard()
 returns trigger language plpgsql as $$
 begin
   -- Service role (invite / deactivate actions) may change anything.
-  if coalesce(current_setting('request.jwt.claims', true)::jsonb->>'role', '') = 'authenticated' then
+  if coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb->>'role', '') = 'authenticated' then
     if new.is_active is distinct from old.is_active or new.email is distinct from old.email then
       raise exception 'only an administrator can change this';
     end if;
@@ -259,6 +259,9 @@ create or replace function area_id_for_store(p_store_id uuid)
 returns uuid language sql stable security definer set search_path = public as $$
   select c.area_id from stores s join cities c on c.id = s.city_id where s.id = p_store_id;
 $$;
+
+-- Internal helper: not for the public API.
+revoke execute on function area_id_for_store(uuid) from public, anon;
 
 create or replace function audit_row_change()
 returns trigger language plpgsql security definer set search_path = public as $$
