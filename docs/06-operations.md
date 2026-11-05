@@ -13,3 +13,12 @@ Everyday tasks. This page grows as features are built; for now it covers only wh
 ```bash
 npm run test:db
 ```
+
+## Resetting demo data
+
+```bash
+npm run seed:reset    # removes demo taps only
+npm run seed:demo     # puts a fresh 90 days back
+```
+
+Real taps (made on the physical card) are never touched by either command.

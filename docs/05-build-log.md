@@ -99,3 +99,27 @@ Not yet verified (needs the real project): that Supabase accepts the migrations 
 **Not yet verified (needs the secret key and seeded logins):** signing in as each role, a full invitation, and switching someone off. These are covered by the demo seed in milestone 7. `.env.local` was created with the project URL and publishable key only; `SUPABASE_SECRET_KEY` is blank and must be pasted in by you.
 
 **Still to do in the Supabase dashboard:** switch off public sign-ups and raise the minimum password length (see `docs/01-setup.md`).
+
+## 6 November 2026 (night): demo seed, live tests, real sign-in
+
+The secret key was added to `.env.local`, so the seed (planned for milestone 7) was built early to allow live testing.
+
+**Built:** `scripts/seed-demo.ts`, `scripts/reset-demo.ts`, `scripts/lib/common.ts`. The seed is repeatable (same pattern every time) and idempotent. Demo logins' passwords were generated into `.env.local` (not committed). Ran against the live project: 3 areas, 10 cities, 12 stores, 15 tags, 4 logins, 9,183 demo events.
+
+**Data shape checked in SQL:** 54% NFC; Saturday and Friday busiest, Sunday quietest; taps only between 09:00 and 17:59 London time; latest 30 days about 29% higher than the oldest 30; 279 duplicates and 171 bots flagged; no real (non-demo) events.
+
+**Live test found a real bug.** `npm run test:access` passed 17 of 18; the failure was an area manager adding a city and asking for the new row back (what the app does): refused by Row Level Security, because the read-policy helper looked the new row up in a snapshot that does not contain it yet. The same flaw affected stores. Fixed in migration `..006` (applied to Supabase and added to `supabase/migrations`), and `npm run test:db` now has four "insert and read it back" cases, which fail without the fix and pass with it. After the fix: 18 of 18 live tests pass. The tests now delete the few rows they create.
+
+**Real sign-in checked in a browser (local build against the live project):**
+- Signed out visitors are sent to `/login` and returned to the page they wanted after signing in.
+- Staff login: sees only Area 1 and Nottingham West Bridgford; `/people` is a 404.
+- Admin login: People page lists all four demo logins; no switch-off button on their own row.
+- Full invitation: admin created an invitation, the one-time link signed the invitee in, a too-short password was refused with a clear message, a valid one was accepted, and the new person landed as Staff at their store only.
+- Switching a login off ended an open session at the next page load, with the "switched off" notice and no redirect loop.
+- The test invitee was deleted afterwards (4 profiles remain).
+
+**Small change:** the invite form now defaults to the lowest role instead of Admin.
+
+**Not exercised in a browser:** the "Switch off" button itself (a confirmation dialog); its rules are unit tested and the same database changes were applied by script.
+
+**Demo logins** were shown in this session's tool output while testing. They are local demo passwords; change them (re-run the seed after editing `.env.local`) before any real pilot.

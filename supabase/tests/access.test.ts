@@ -5,7 +5,7 @@
  * Needs a live project with `npm run seed:demo` applied and .env.local present.
  * Run with: npm run test:access
  */
-import { beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { config as loadEnv } from "dotenv";
 import type { Database } from "@/lib/supabase/types";
@@ -57,6 +57,18 @@ beforeAll(async () => {
   const { data: stores } = await admin.from("stores").select("id,name,cities(area_id)");
   westBridgfordId = stores!.find((s) => s.name === "Nottingham West Bridgford")!.id;
   otherStoreId = stores!.find((s) => s.name !== "Nottingham West Bridgford")!.id;
+});
+
+// The tests create a few throwaway rows (names start with "Test"). Remove them
+// afterwards, with the secret key, so the demo data stays clean.
+afterAll(async () => {
+  const secret = process.env.SUPABASE_SECRET_KEY;
+  if (!secret) return;
+  const svc = createClient<Database>(url, secret, { auth: { persistSession: false, autoRefreshToken: false } });
+  await svc.from("tags").delete().like("label", "Test tag%");
+  await svc.from("cities").delete().like("name", "Test city%");
+  await svc.from("areas").delete().like("name", "Test area%");
+  await svc.from("audit_log").delete().or("details->after->>name.like.Test*,details->after->>label.like.Test tag*");
 });
 
 describe("anonymous visitors", () => {

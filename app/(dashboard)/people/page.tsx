@@ -59,7 +59,7 @@ export default async function PeoplePage() {
         <CardDescription>Accounts are invitation-only. You can invite people up to the level shown.</CardDescription>
         <div className="mt-4">
           <InviteForm
-            roles={roles}
+            roles={[...roles].reverse() /* lowest first, so the form never defaults to Admin */}
             areas={(areas ?? []).map((a) => ({ id: a.id, name: a.name }))}
             stores={inviteStores.map((s) => ({ id: s.id, name: s.name }))}
           />

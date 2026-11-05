@@ -53,6 +53,15 @@ begin
   return n;
 end $$;
 
+-- Runs an INSERT ... RETURNING and passes only if a row came back (as the app does).
+create function t.inserts_and_returns(p_name text, p_sql text) returns void language plpgsql as $$
+declare v text;
+begin
+  execute p_sql || ' returning id::text' into v;
+  if v is null then raise exception 'FAIL: % (no row returned)', p_name; end if;
+  raise notice 'ok   %', p_name;
+end $$;
+
 create function t.n(p_sql text) returns bigint language plpgsql as $$
 declare n bigint;
 begin
@@ -161,6 +170,7 @@ select t.ok('bm sees only their store', t.n('select 1 from stores') = 1);
 select t.ok('bm sees staff memberships in their store', t.n('select 1 from memberships') = 3);
 select t.ok('bm sees profiles of their store', t.n('select 1 from profiles') = 3);
 select t.ok('bm can create a tag in their store', t.rows_changed($$insert into tags (store_id,label,public_code) values ('00000000-0000-0000-0000-0000000000b1','New','newcode0001')$$) = 1);
+select t.inserts_and_returns('bm can add a tag and read it back', $$insert into tags (store_id,label,public_code) values ('00000000-0000-0000-0000-0000000000b1','Another','newcode0009')$$);
 select t.throws('bm cannot create a tag elsewhere', $$insert into tags (store_id,label,public_code) values ('00000000-0000-0000-0000-0000000000b2','New','newcode0002')$$);
 select t.ok('bm can rename their tag', t.rows_changed($$update tags set label='Renamed' where public_code='wbWB000001'$$) = 1);
 select t.throws('bm cannot move a tag to a store they do not manage', $$update tags set store_id='00000000-0000-0000-0000-0000000000b2' where public_code='wbWB000001'$$);
@@ -186,6 +196,8 @@ select t.ok('am sees only Area 1', t.n('select 1 from areas') = 1);
 select t.ok('am sees only Nottingham', t.n('select 1 from cities') = 1);
 select t.ok('am sees Area 1 events only', t.n('select 1 from tap_events') = 5);
 select t.ok('am can add a city in Area 1', t.rows_changed($$insert into cities (area_id,name) values ('00000000-0000-0000-0000-0000000000a1','Derby')$$) = 1);
+select t.inserts_and_returns('am can add a city in Area 1 and read it back', $$insert into cities (area_id,name) values ('00000000-0000-0000-0000-0000000000a1','Lincoln')$$);
+select t.inserts_and_returns('am can add a store in Area 1 and read it back', $$insert into stores (city_id,name,google_review_url) values ('00000000-0000-0000-0000-0000000000c1','Nottingham Clifton','https://search.google.com/local/writereview?placeid=r')$$);
 select t.throws('am cannot add a city in Area 2', $$insert into cities (area_id,name) values ('00000000-0000-0000-0000-0000000000a2','Leeds')$$);
 select t.throws('am cannot move a city into Area 2', $$update cities set area_id='00000000-0000-0000-0000-0000000000a2' where name='Nottingham'$$);
 select t.throws('am cannot create areas', $$insert into areas (organisation_id,name) values ('00000000-0000-0000-0000-0000000000a0','Area 9')$$);
@@ -213,6 +225,7 @@ select t.as_user('00000000-0000-0000-0000-00000000ad01');
 select t.ok('admin sees all stores', t.n('select 1 from stores') = 3);
 select t.ok('admin sees all areas',  t.n('select 1 from areas') = 2);
 select t.ok('admin sees all events', t.n('select 1 from tap_events') = 6);
+select t.inserts_and_returns('admin can add an area and read it back', $$insert into areas (organisation_id,name) values ('00000000-0000-0000-0000-0000000000a0','Area 4')$$);
 select t.ok('admin can create an area', t.rows_changed($$insert into areas (organisation_id,name) values ('00000000-0000-0000-0000-0000000000a0','Area 3')$$) = 1);
 select t.ok('admin can see audit log', t.n('select 1 from audit_log') > 0);
 select t.throws('admin still cannot write tap events', $$insert into tap_events (tag_id,store_id,method) values ('00000000-0000-0000-0000-0000000000d1','00000000-0000-0000-0000-0000000000b1','qr')$$);
