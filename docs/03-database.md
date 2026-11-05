@@ -53,3 +53,10 @@ A deactivated user sees nothing, even with a valid login. Nobody can delete stor
 ## Reporting functions
 
 `analytics_totals`, `analytics_daily`, `analytics_by_store`, `analytics_hourly`, `analytics_by_tag`, `analytics_recent` and `analytics_today` run with the caller's own permissions, so a staff member asking for "everything" only gets their store. They skip duplicates and bots unless asked, and group days in London time.
+
+## Extra safeguards added after the first draft
+
+- **Store review links are limited to Google.** A database constraint refuses any `google_review_url` that is not an HTTPS link on a Google address (no look-alike hosts, no `google.com@evil` trick, no port). This holds even for someone calling the API directly.
+- **Retiring a tag is permanent.** A retired tag cannot be un-retired or switched back on, and a printed code can never change.
+- **Reading back what you just created.** Read rules for cities and stores also allow whoever manages the parent, so creating a city or store and getting it back in one step works for area managers.
+- **Internal helper functions** are not callable through the public API, and trigger functions cannot be called at all.

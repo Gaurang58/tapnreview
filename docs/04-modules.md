@@ -8,7 +8,10 @@ Each part of the app lives in its own folder. This page says what each one is fo
 | Access control | `supabase/migrations`, `lib/auth/roles.ts` | Built (milestones 2 and 4) |
 | Analytics | `supabase/migrations/..003`, `lib/analytics` | SQL built; app wrappers in milestone 6 |
 | Auth and invites | `app/login`, `app/set-password`, `app/auth`, `lib/auth`, `proxy.ts`, `app/(dashboard)/people` | Built (milestone 4) |
-| Structure, Tags and QR, Overview, Store detail, People, Audit, Demo data | | Later milestones |
+| Organisation structure | `app/(dashboard)/structure` | Built (milestone 5) |
+| Tags and QR | `app/(dashboard)/tags`, `app/api/qr` | Built (milestone 5) |
+| Demo data | `scripts/seed-demo.ts`, `scripts/reset-demo.ts` | Built |
+| Overview, Store detail, Insights, Audit | | Later milestones |
 
 ## Redirect
 
@@ -48,3 +51,24 @@ Each part of the app lives in its own folder. This page says what each one is fo
 Switching a person off sets `is_active = false`, bans the login in Supabase so no new sessions start, and keeps their history. You can't switch yourself off, or anyone at your own level or above (admins excepted).
 
 **Changing it safely:** to add a menu item, add it to `NAV` in `lib/auth/roles.ts` and set `built: true` only once its page exists. Never write memberships from anywhere except the server actions in `people/actions.ts`.
+
+## Organisation structure
+
+**Purpose:** create and edit areas, cities and stores, including each store's Google link. **Files:** `app/(dashboard)/structure/page.tsx` (the page) and `actions.ts` (the saves).
+
+- Admins add and edit areas, cities and stores anywhere. Area managers add and edit cities and stores inside their own areas. Bureau managers and staff don't see this page.
+- A store's Google link comes from its **Place ID** (built into `https://search.google.com/local/writereview?placeid=…`) or from a **pasted Google review link**. Only HTTPS links on Google's own addresses are accepted, checked three times: in the form (`lib/redirect/url.ts`), in the database (a constraint on `stores`), and again at the moment of every tap.
+- Each store has a **Test review link** (opens Google in a new tab) and a link to Google's Place ID Finder.
+- Stores are switched off, never deleted, so their history stays.
+- Saves run as the signed-in person, so the database's access rules decide, and a refused save gives a plain message.
+
+## Tags and QR
+
+**Purpose:** create tags, give them their NFC address and QR code, and manage their life. **Files:** `app/(dashboard)/tags/page.tsx`, `actions.ts`; `app/api/qr/[code]/route.ts`; `lib/codes.ts` (code generator).
+
+- **Create:** pick a store; the tag is named "<store> tag" unless you type another name. Its code is 10 random letters and numbers from a cryptographic source.
+- **NFC address** `<PUBLIC_APP_URL>/t/<code>` (with a Copy button) is what you write to the chip. **QR code** encodes `<PUBLIC_APP_URL>/q/<code>`, so scans and taps are counted separately.
+- **QR downloads:** SVG (best for printing) and a 1024-pixel PNG, both with a quiet border, at `/api/qr/<code>?format=svg|png&download=1`. Only signed-in people who can see the tag can fetch them.
+- **Test NFC link / Test QR link** open the real address in a new tab. They count as a real tap or scan.
+- **Rename, switch on/off, move, retire.** Moving keeps the printed card valid; past taps stay with the store they were made at. Retiring asks for confirmation and is permanent: the card then shows "not active", and the tag can never be switched on again.
+- Counts on each card are the last 30 days of NFC taps and QR scans (duplicates and bots excluded).

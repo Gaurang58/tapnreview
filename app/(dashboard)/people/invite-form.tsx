@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useActionHandler } from "@/components/forms/use-action-handler";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/input";
 import { Alert } from "@/components/ui/alert";
@@ -10,13 +11,17 @@ import { inviteUser } from "./actions";
 type Option = { id: string; name: string };
 
 export function InviteForm({ roles, areas, stores }: { roles: Role[]; areas: Option[]; stores: Option[] }) {
-  const [state, action, pending] = useActionState(inviteUser, undefined);
+  const { state, onSubmit, pending } = useActionHandler(inviteUser);
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (state?.link) formRef.current?.reset(); // clear only after a success
+  }, [state]);
   const [role, setRole] = useState<Role>(roles[0]!);
   const [copied, setCopied] = useState(false);
 
   return (
     <div className="space-y-4">
-      <form action={action} className="grid gap-4 sm:grid-cols-2">
+      <form ref={formRef} onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
         {state?.error ? <Alert tone="error" className="sm:col-span-2">{state.error}</Alert> : null}
         <Field label="Full name" htmlFor="fullName">
           <Input id="fullName" name="fullName" autoComplete="off" required />

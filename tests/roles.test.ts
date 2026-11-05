@@ -70,7 +70,8 @@ describe("navigation", () => {
   const labels = (ms: Membership[]) => navFor(ms).map((n) => n.label);
   it("shows each role only the pages it may use", () => {
     expect(labels(staff)).toEqual(["Overview"]);
-    expect(labels(wbManager)).toEqual(["Overview", "People"]);
-    expect(labels(admin)).toContain("People");
+    expect(labels(wbManager)).toEqual(["Overview", "Tags", "People"]);
+    expect(labels(area1)).toEqual(["Overview", "Tags", "Areas and stores", "People"]);
+    expect(labels(admin)).toEqual(["Overview", "Tags", "Areas and stores", "People"]);
   });
 });

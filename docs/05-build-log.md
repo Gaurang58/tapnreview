@@ -123,3 +123,36 @@ The secret key was added to `.env.local`, so the seed (planned for milestone 7) 
 **Not exercised in a browser:** the "Switch off" button itself (a confirmation dialog); its rules are unit tested and the same database changes were applied by script.
 
 **Demo logins** were shown in this session's tool output while testing. They are local demo passwords; change them (re-run the seed after editing `.env.local`) before any real pilot.
+
+## 6 November 2026 (late): milestone 5, structure, tags and QR
+
+**Built**
+
+- **Areas and stores** (`/structure`): add and edit areas (admin), cities and stores (admin, and area managers within their areas); each store has a Place ID or a pasted Google link, a Test review link and a link to Google's Place ID Finder.
+- **Tags** (`/tags`): create (named after the store by default), rename, switch on/off, move, retire with a confirmation; NFC address with Copy; Test NFC link and Test QR link; QR as SVG and PNG; last-30-day counts.
+- **QR route** (`/api/qr/<code>`): signed-in only, scoped by the database's access rules.
+- Shared pieces: code generator (`lib/codes.ts`), review-link resolver, London date helpers, a form wrapper with success and error messages.
+- Migrations 7 and 8, applied to Supabase: the database itself now refuses non-Google review links, and a retired tag can never be switched on.
+
+**Decision: test links count as real taps.** They go through the real redirect so they prove the whole path, and the buttons say so. (The alternative, a silent test mode, would not prove the logging works.)
+
+**Problems found by using it, and fixed**
+
+- *A failed save wiped what the person had typed* (React clears forms after every action, even a failed one). A wrong Google link would have emptied the whole store form. The wrapper no longer resets on errors; the login and invite forms got the same fix.
+- *A scam-link gap:* the database only checked "starts with https", so a compromised login could have used the API to point a store at any site. Now enforced in the database (migration 7) as well as the app and at every tap.
+- Navigation test updated for the new menu items.
+
+**Checked against the live project (local build, real logins)**
+
+- Tags page: 15 cards, all 15 QR images load, counts scoped to 30 days.
+- QR downloads: correct file types and names; unknown and malicious codes give 404. The PNG, decoded by the browser's barcode reader, reads `…/q/<code>`, i.e. the scan address.
+- Created a tag (default name), renamed it, moved it to another store, switched it off (card shows "not active"), on again (redirects to Google), and retired it (confirmation shown; card shows "not active"; appears under Retired).
+- **The redirect logged a real tap against the tag's new store**, with `no-store` and a 302 to Google. A second scan from the same phone was marked a duplicate, and a WhatsApp preview was marked a bot.
+- Structure: a scam link was refused with a plain message and the typed values were kept; a store created from a Place ID got the standard Google link and a Test review link.
+- Area manager login: sees only Area 1, with no add or edit area controls; sees the new city.
+- Wrong password: clear message and the email is kept.
+- Test data (tag, its three test events, store, city) was then removed: back to 3 areas, 10 cities, 12 stores, 15 tags and no real events.
+
+**Automated checks:** lint and typecheck clean; 34 unit tests; local database suite passes; 19 live-API tests (two new: scam links refused through the API, retired tags stay off).
+
+**Not covered:** the NFC chip itself (needs your phone); mobile-width and accessibility checks of these two pages (planned for the final pass); sign-in is slow (about 5 to 8 seconds) from this machine, likely distance to the database plus three sequential calls, to be measured on Vercel.

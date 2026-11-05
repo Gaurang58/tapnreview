@@ -146,6 +146,14 @@ describe("area manager (Area 1)", () => {
     expect(bad.error).not.toBeNull();
   });
 
+  it("cannot point a store's card at a non-Google page, even straight through the API", async () => {
+    const { data: store } = await areaManager.from("stores").select("id").limit(1).single();
+    for (const url of ["https://evil.example/review", "https://google.com.evil.example/", "https://google.com@evil.example/", "http://search.google.com/x"]) {
+      const { error } = await areaManager.from("stores").update({ google_review_url: url }).eq("id", store!.id);
+      expect(error, url).not.toBeNull();
+    }
+  });
+
   it("cannot create areas", async () => {
     const { data: org } = await areaManager.from("organisations").select("id").single();
     const { error } = await areaManager.from("areas").insert({ organisation_id: org!.id, name: `X ${Date.now()}` });
@@ -183,6 +191,12 @@ describe("bureau manager (Nottingham West Bridgford)", () => {
       .select("is_active")
       .single();
     expect(retired.data?.is_active).toBe(false);
+
+    // Retiring is permanent: it can't be switched back on or un-retired.
+    const revive = await bureauManager.from("tags").update({ is_active: true }).eq("id", created.data!.id);
+    expect(revive.error).not.toBeNull();
+    const unretire = await bureauManager.from("tags").update({ retired_at: null }).eq("id", created.data!.id);
+    expect(unretire.error).not.toBeNull();
   });
 
   it("cannot change a printed code", async () => {

@@ -59,6 +59,7 @@ export const config = {
     "/insights/:path*",
     "/audit/:path*",
     "/api/live/:path*",
+    "/api/qr/:path*",
     "/api/export/:path*",
     "/login",
     "/set-password",

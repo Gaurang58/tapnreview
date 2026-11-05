@@ -1,4 +1,3 @@
-import { randomInt } from "node:crypto";
 import { config as loadEnv } from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../../lib/supabase/types";
@@ -13,14 +12,7 @@ export function adminClient() {
   return createClient<Database>(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
-const BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-
-/** 10 random base-62 characters from a cryptographic source. */
-export function newPublicCode(length = 10): string {
-  let out = "";
-  for (let i = 0; i < length; i++) out += BASE62[randomInt(62)];
-  return out;
-}
+export { newPublicCode } from "../../lib/codes";
 
 export function reviewUrl(placeId: string) {
   return `https://search.google.com/local/writereview?placeid=${encodeURIComponent(placeId)}`;

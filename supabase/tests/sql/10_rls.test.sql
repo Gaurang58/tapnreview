@@ -178,6 +178,7 @@ select t.ok('bm cannot touch another store''s tag', t.rows_changed($$update tags
 select t.throws('bm cannot change a printed code', $$update tags set public_code='changed0001' where public_code='wbWB000001'$$);
 select t.ok('bm can retire a tag (switches it off)', t.rows_changed($$update tags set retired_at=now() where public_code='newcode0001'$$) = 1);
 select t.ok('retired tag is inactive', (select not is_active from tags where public_code='newcode0001'));
+select t.throws('a retired tag cannot be switched on', $$update tags set is_active=true where public_code='newcode0001'$$);
 select t.throws('bm cannot un-retire a tag', $$update tags set retired_at=null where public_code='newcode0001'$$);
 select t.ok('bm cannot edit the store', t.rows_changed($$update stores set name='x'$$) = 0);
 select t.throws('bm cannot create a store', $$insert into stores (city_id,name,google_review_url) values ('00000000-0000-0000-0000-0000000000c1','New','https://search.google.com/x')$$);
@@ -202,6 +203,11 @@ select t.throws('am cannot add a city in Area 2', $$insert into cities (area_id,
 select t.throws('am cannot move a city into Area 2', $$update cities set area_id='00000000-0000-0000-0000-0000000000a2' where name='Nottingham'$$);
 select t.throws('am cannot create areas', $$insert into areas (organisation_id,name) values ('00000000-0000-0000-0000-0000000000a0','Area 9')$$);
 select t.ok('am can add a store in Area 1', t.rows_changed($$insert into stores (city_id,name,google_review_url) values ('00000000-0000-0000-0000-0000000000c1','Nottingham Beeston','https://search.google.com/local/writereview?placeid=q')$$) = 1);
+select t.throws('store review link must be on a Google host (scam page refused)', $$insert into stores (city_id,name,google_review_url) values ('00000000-0000-0000-0000-0000000000c1','Scam','https://evil.example/google.com')$$);
+select t.throws('look-alike host refused', $$insert into stores (city_id,name,google_review_url) values ('00000000-0000-0000-0000-0000000000c1','Scam2','https://google.com.evil.example/')$$);
+select t.throws('userinfo trick refused', $$insert into stores (city_id,name,google_review_url) values ('00000000-0000-0000-0000-0000000000c1','Scam3','https://google.com@evil.example/')$$);
+select t.throws('plain http refused', $$insert into stores (city_id,name,google_review_url) values ('00000000-0000-0000-0000-0000000000c1','Scam4','http://search.google.com/local/writereview?placeid=x')$$);
+select t.ok('country Google domain allowed', t.rows_changed($$insert into stores (city_id,name,google_review_url) values ('00000000-0000-0000-0000-0000000000c1','Okay','https://www.google.co.uk/maps/place/x')$$) = 1);
 select t.throws('am cannot add a store in Area 2', $$insert into stores (city_id,name,google_review_url) values ('00000000-0000-0000-0000-0000000000c2','Manchester Salford','https://search.google.com/local/writereview?placeid=q')$$);
 select t.ok('am can edit a store in Area 1', t.rows_changed($$update stores set google_place_id='p' where name='Nottingham Bulwell'$$) = 1);
 select t.ok('am cannot see Area 2 stores to edit them', t.rows_changed($$update stores set google_place_id='p' where name='Manchester Arndale'$$) = 0);
