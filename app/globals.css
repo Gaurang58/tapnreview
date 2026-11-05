@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+/* Dark mode is opt-in via a .dark class on <html>, toggled by ThemeToggle. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  Design tokens from the approved mockups. Everything outside the tap board is
+  deliberately quiet: one ground colour, white panels, hairline borders.
+*/
+@theme {
+  --color-ground: #eef1ec;
+  --color-panel: #ffffff;
+  --color-line: #d5dcd6;
+  --color-ink: #18231d;
+  --color-ink-muted: #56645b;
+  --color-board: #0f3d2e;
+  --color-board-deep: #0a2c21;
+  --color-lime: #b8f05c;
+  --color-nfc: #2e7d32;
+  --color-qr: #e39a2d;
+  --color-danger: #b42318;
+  --color-focus: #2e7d32;
+
+  --font-sans: var(--font-schibsted), ui-sans-serif, system-ui, sans-serif;
+  --font-board: var(--font-doto), ui-monospace, monospace;
+
+  --radius-panel: 0.75rem;
+}
+
+:root {
+  --bg: var(--color-ground);
+  --fg: var(--color-ink);
+  --muted: var(--color-ink-muted);
+  --panel: var(--color-panel);
+  --line: var(--color-line);
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #121a16;
+  --fg: #eef1ec;
+  --muted: #9aaba0;
+  --panel: #18231d;
+  --line: #2a3830;
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    min-height: 100dvh;
+  }
+  *:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  ::selection {
+    background: var(--color-lime);
+    color: var(--color-board);
+  }
+}
+
+@layer components {
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-panel);
+  }
+  .text-muted {
+    color: var(--muted);
+  }
+  .hairline {
+    border-color: var(--line);
+  }
+
+  /* The tap board: deep green with a faint dot texture, like a bureau rate board. */
+  .tap-board {
+    position: relative;
+    background-color: var(--color-board);
+    background-image: radial-gradient(rgba(184, 240, 92, 0.12) 1px, transparent 1px);
+    background-size: 10px 10px;
+    color: var(--color-lime);
+    border-radius: var(--radius-panel);
+    overflow: hidden;
+  }
+  .tap-board-text {
+    font-family: var(--font-board);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* The newest feed row lights up once when it arrives. */
+@keyframes board-arrive {
+  0% {
+    background-color: rgba(184, 240, 92, 0.55);
+    color: var(--color-board);
+  }
+  100% {
+    background-color: transparent;
+    color: var(--color-lime);
+  }
+}
+.board-arrive {
+  animation: board-arrive 1.6s ease-out 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .board-arrive {
+    animation: none;
+  }
+}
+
+/* Skeletons */
+@keyframes shimmer {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+.skeleton {
+  background: var(--line);
+  border-radius: 6px;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.sr-only-focusable:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}

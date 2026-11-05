@@ -1,0 +1,66 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+
+/**
+ * Runs before dashboard requests to refresh the Supabase session cookie and
+ * send signed-out visitors to the login page. The customer-facing redirect
+ * routes (/t and /q) are deliberately excluded by the matcher below so they
+ * never pay for an auth round-trip.
+ */
+export async function proxy(request: NextRequest) {
+  let response = NextResponse.next({ request });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          response = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+        },
+      },
+    },
+  );
+
+  // getClaims validates the JWT locally; no network call on every request.
+  const { data } = await supabase.auth.getClaims();
+  const signedIn = Boolean(data?.claims);
+
+  const { pathname } = request.nextUrl;
+  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/set-password");
+
+  if (!signedIn && !isAuthPage) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("next", pathname);
+    return NextResponse.redirect(url);
+  }
+  if (signedIn && pathname === "/login") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/overview";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+  return response;
+}
+
+export const config = {
+  matcher: [
+    "/overview/:path*",
+    "/stores/:path*",
+    "/tags/:path*",
+    "/structure/:path*",
+    "/people/:path*",
+    "/insights/:path*",
+    "/audit/:path*",
+    "/api/live/:path*",
+    "/api/export/:path*",
+    "/login",
+    "/set-password",
+  ],
+};
