@@ -26,16 +26,20 @@ This is a demo build for **Monday 9 November 2026**, designed so a real pilot is
 5. [Build log](docs/05-build-log.md): what was built, when, and what went wrong
 6. [Operations](docs/06-operations.md): everyday tasks
 7. [Testing](docs/07-testing.md): how to run every check
-8. Demo script (`docs/08-demo-script.md`): written at milestone 7
+8. [Demo script and local testing](docs/08-demo-script.md): how to try every role on your computer, and the Monday demo flow
 
 ## Quick start
 
 ```bash
-nvm use            # Node 22
+nvm use                      # Node 22
 npm install
-cp .env.example .env.local   # then fill in the values
-npm run dev
+cp .env.example .env.local   # then fill in the values (see docs/01-setup.md)
+npm run seed:demo            # sample data and four demo logins
+npm run dev:webpack          # http://localhost:3000
+npm run demo:logins          # prints the four logins (Admin, Area manager, Bureau manager, Staff)
 ```
+
+[docs/08-demo-script.md](docs/08-demo-script.md) explains how to try each role.
 
 ## Checks
 

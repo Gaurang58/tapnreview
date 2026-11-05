@@ -5,6 +5,8 @@
   "description": "Tap Review: tap or scan a card, land on the store's Google review page, and count every tap by tag, store, city and area.",
   "scripts": {
     "dev": "next dev",
+    "dev:webpack": "next dev --webpack",
+    "demo:logins": "tsx scripts/demo-logins.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
