@@ -110,6 +110,18 @@ describe("admin", () => {
     expect(updateError).toBeNull();
   });
 
+  it("reads the whole event history quickly (access checks run once per query, not once per row)", async () => {
+    // Regression test: when the read rule was evaluated per row, 9,000 events timed out (8+ s).
+    const started = Date.now();
+    const { data, error } = await admin.rpc("analytics_by_store", { p_from: "2020-01-01", p_to: "2030-12-31" });
+    expect(error).toBeNull();
+    expect(data!.length).toBeGreaterThanOrEqual(12);
+    expect(Date.now() - started).toBeLessThan(3000);
+    const t = await admin.rpc("analytics_totals", { p_from: "2020-01-01", p_to: "2030-12-31" });
+    expect(t.error).toBeNull();
+    expect(t.data![0]!.interactions).toBeGreaterThan(10000);
+  });
+
   it("still cannot write tap_events (only the redirect routes may)", async () => {
     const { data: tag } = await admin.from("tags").select("id,store_id").limit(1).single();
     const { error } = await admin

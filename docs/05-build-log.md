@@ -73,7 +73,7 @@ Not yet verified (needs the real project): that Supabase accepts the migrations 
 
 **Not yet done:** the live API access tests (`npm run test:access`) wait for the demo seed (milestone 7); nothing has been pushed to GitHub.
 
-## 6 November 2026: milestone 4, sign-in, invite-only accounts, role-aware navigation
+## 5 November 2026: milestone 4, sign-in, invite-only accounts, role-aware navigation
 
 **Built**
 
@@ -100,7 +100,7 @@ Not yet verified (needs the real project): that Supabase accepts the migrations 
 
 **Still to do in the Supabase dashboard:** switch off public sign-ups and raise the minimum password length (see `docs/01-setup.md`).
 
-## 6 November 2026 (night): demo seed, live tests, real sign-in
+## 5 November 2026 (night): demo seed, live tests, real sign-in
 
 The secret key was added to `.env.local`, so the seed (planned for milestone 7) was built early to allow live testing.
 
@@ -124,7 +124,7 @@ The secret key was added to `.env.local`, so the seed (planned for milestone 7) 
 
 **Demo logins** were shown in this session's tool output while testing. They are local demo passwords; change them (re-run the seed after editing `.env.local`) before any real pilot.
 
-## 6 November 2026 (late): milestone 5, structure, tags and QR
+## 5 November 2026 (late): milestone 5, structure, tags and QR
 
 **Built**
 
@@ -156,3 +156,35 @@ The secret key was added to `.env.local`, so the seed (planned for milestone 7) 
 **Automated checks:** lint and typecheck clean; 34 unit tests; local database suite passes; 19 live-API tests (two new: scam links refused through the API, retired tags stay off).
 
 **Not covered:** the NFC chip itself (needs your phone); mobile-width and accessibility checks of these two pages (planned for the final pass); sign-in is slow (about 5 to 8 seconds) from this machine, likely distance to the database plus three sequential calls, to be measured on Vercel.
+
+## 5 November 2026 (night): milestone 6, Overview, Store detail and the live feed
+
+**Built**
+
+- **Overview** (`/overview`): tap board, filters in the address (date range, area, city, store, method), six KPI tiles with change against the previous period, a daily NFC-vs-QR line chart, and a sortable comparison table grouped by store, city or area (city and area figures are summed from stores when shown). "Demo data" badge, skeleton loading and plain empty states.
+- **Store detail** (`/stores/<id>`): the same board and tiles for one store, day-of-week by hour heatmap, tags with counts and QR downloads.
+- **Live feed:** Supabase Realtime, with a 15-second polling fallback (`/api/live`) and a `?live=poll` switch to force it.
+- Migration 9, applied: the read rules on events, tags and stores were rewritten to be fast.
+- Seed now creates 180 days of events (was 90) so the default 90-day view has a previous period to compare with; real taps are untouched by reseeding.
+
+**Problems found by using it, and fixed**
+
+1. **The Overview timed out for the admin.** The database's read rule ran a heavy check once per event row (about 1 ms each); at 9,000 events that was 8.7 seconds, past Postgres's time limit. Staff logins hid it because they see very few rows. Fixed with migration 9 (same rule, evaluated once per query): the heaviest query went from timeout to 24 ms. A live test now guards it. This would have failed in front of the head of marketing.
+2. **Tap board clipped on phones:** long store names pushed the NFC/QR label off the panel. Names now shorten with an ellipsis.
+3. **Filters lost on sign-in:** when a signed-out visitor was sent to the login page, the page's filters (`?range=7d…`) were dropped. They are now kept, so a shared or bookmarked view survives signing in.
+4. **Default view showed "no data to compare"** because only 90 days existed: fixed by seeding 180 days.
+5. Earlier build-log entries were dated 6 November in error; the date is 5 November. Corrected.
+
+**Verified against the live project (local build, real logins)**
+
+- *Live feed:* tapped the physical card's NFC address from the command line; within 3 seconds the board showed "NOTTINGHAM WEST BRIDGFORD NFC" at the top, lit up, and today's count went 123 to 124. A QR scan from a different phone appeared the same way. A WhatsApp link preview did not appear. The KPI tiles refreshed by themselves (8,733 to 8,735 total interactions).
+- *Polling fallback* (`?live=poll`): board read "Updating every 15 seconds"; a tap at 23:42:36 was on the board by 23:42:54.
+- *Staff login:* filter lists contain only Area 1, Nottingham and West Bridgford; board, tiles and table show only that store; another store's page is a 404; a hand-edited `?store=` for a store they can't see is ignored.
+- *Store detail:* board scoped to the store, tiles with change figures, chart, heatmap and tag table all render.
+- *Phone width (375 px):* no sideways scrolling, bottom navigation, board readable (visually checked after the fix).
+
+**Automated checks:** lint and typecheck clean; 45 unit tests; local database suite (95 checks) passes; 20 live-API tests pass.
+
+**About the test browser:** it discards cookies whenever the local server restarts (a harmless plain test cookie vanished the same way), so I had to sign in again after each rebuild. It is a quirk of the tool, not of the app.
+
+**Not yet covered:** an automated accessibility scan and a manual keyboard pass over the new pages; the Insights page (heatmap across a whole scope, CSV export) and Audit log (milestone 9, optional); the Vercel deploy and the real card (milestone 8). Browsers other than the in-app one, and a real phone, have not been tried.

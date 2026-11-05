@@ -6,12 +6,13 @@ Each part of the app lives in its own folder. This page says what each one is fo
 | --- | --- | --- |
 | Redirect | `app/t`, `app/q`, `lib/redirect` | Built (milestone 3) |
 | Access control | `supabase/migrations`, `lib/auth/roles.ts` | Built (milestones 2 and 4) |
-| Analytics | `supabase/migrations/..003`, `lib/analytics` | SQL built; app wrappers in milestone 6 |
+| Analytics | `supabase/migrations/..003`, `lib/analytics` | Built (milestones 3 and 6) |
 | Auth and invites | `app/login`, `app/set-password`, `app/auth`, `lib/auth`, `proxy.ts`, `app/(dashboard)/people` | Built (milestone 4) |
 | Organisation structure | `app/(dashboard)/structure` | Built (milestone 5) |
 | Tags and QR | `app/(dashboard)/tags`, `app/api/qr` | Built (milestone 5) |
 | Demo data | `scripts/seed-demo.ts`, `scripts/reset-demo.ts` | Built |
-| Overview, Store detail, Insights, Audit | | Later milestones |
+| Overview and tap board, Store detail | `app/(dashboard)/overview`, `app/(dashboard)/stores/[id]`, `components/dashboard`, `components/charts`, `app/api/live` | Built (milestone 6) |
+| Insights, Audit | | Later (optional) |
 
 ## Redirect
 
@@ -72,3 +73,26 @@ Switching a person off sets `is_active = false`, bans the login in Supabase so n
 - **Test NFC link / Test QR link** open the real address in a new tab. They count as a real tap or scan.
 - **Rename, switch on/off, move, retire.** Moving keeps the printed card valid; past taps stay with the store they were made at. Retiring asks for confirmation and is permanent: the card then shows "not active", and the tag can never be switched on again.
 - Counts on each card are the last 30 days of NFC taps and QR scans (duplicates and bots excluded).
+
+## Analytics, Overview and Store detail
+
+**Purpose:** answer "how are customers engaging, and where?" at a glance, and update live when someone taps a card.
+
+**Files**
+
+- `lib/analytics/filters.ts`: turns the address (`?range=30d&area=…&method=nfc`) into validated filters, and works out the equally long *previous period* used for the change figures. Bad or hand-edited values fall back safely.
+- `lib/analytics/aggregate.ts`: adds stores up into cities and areas at the moment they're shown (never stored), and sorts. `lib/analytics/queries.ts`: the database calls. `lib/analytics/page-helpers.ts`: small helpers that keep an address honest (a person can't select a store they can't see).
+- `components/dashboard/tap-board.tsx`: the green rate-board panel. `kpi-tiles.tsx`, `filters-bar.tsx`, `comparison-table.tsx`. `components/charts/daily-chart.tsx`, `heatmap.tsx`.
+- `app/api/live/route.ts`: the polling endpoint.
+
+**What's on the Overview:** the tap board (today's count in the dot-matrix font and the latest taps), filters (Today, 7, 30, 90 days or custom; area, city, store, method; all in the web address so a view can be shared or bookmarked), six tiles with change against the previous period, a daily NFC-vs-QR chart, and a sortable comparison table that can group by store, city or area. A "Demo data" badge shows whenever demo events are in view. Each person's filter lists contain only the areas, cities and stores their role allows.
+
+**Store detail** (`/stores/<id>`): the same board and tiles for one store, plus the day-by-hour grid, that store's tags with counts and QR downloads. A store you may not see is simply "not found".
+
+**How the live feed works:** the page listens on Supabase Realtime for new rows in `tap_events` (the database's access rules decide which rows reach you). Bots and repeat taps are left out. A new tap appears in about a second, lights its row once, bumps today's count, and a moment later the tiles, chart and table refresh. If Realtime can't connect (venue Wi-Fi sometimes blocks it), the board says "Updating every 15 seconds" and polls instead. You can force that mode by adding `&live=poll` to the Overview address.
+
+**Accessibility:** every chart has a text summary and a "View as a table"; sorting buttons announce their state; the table and heatmap use real headings; colour is never the only signal (NFC is a solid line, QR is dashed).
+
+**Wording:** taps and scans are always "interactions" or "intent to review", never reviews. There are no targets, ranks or leaderboards; the table starts in alphabetical order.
+
+**Changing it safely:** add a new filter in `filters.ts` first (with a test), then pass it through `rpcArgs`.

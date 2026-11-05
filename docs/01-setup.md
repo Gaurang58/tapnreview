@@ -52,7 +52,7 @@ No email templates or redirect URLs are needed: invitation links are generated b
 
 | Command | What it does |
 | --- | --- |
-| `npm run seed:demo` | Creates the organisation, 3 areas, 10 cities, 12 stores, 15 tags, 4 demo logins and about 9,000 demo taps over 90 days (all marked demo). Safe to run again. Prints your physical card's `/t/` and `/q/` addresses |
+| `npm run seed:demo` | Creates the organisation, 3 areas, 10 cities, 12 stores, 15 tags, 4 demo logins and about 18,000 demo taps over 180 days (all marked demo; 180 so the 90-day view has a previous 90 days to compare with). Safe to run again. Prints your physical card's `/t/` and `/q/` addresses |
 | `npm run seed:reset` | Removes every demo tap. Real taps, tags, stores and logins stay |
 
 Needs `SUPABASE_SECRET_KEY` and the `DEMO_*` values in `.env.local`. Only the Nottingham West Bridgford store has a real Google Place ID (from `REAL_STORE_PLACE_ID`); the other stores use obvious placeholders, so their review links are not real.

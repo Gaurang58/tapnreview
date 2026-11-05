@@ -1,7 +1,7 @@
 /**
  * Fills the project with realistic demo data: one organisation, three areas,
  * ten cities, twelve stores, a tag per store (two in the bigger ones), four
- * demo logins and 90 days of believable taps. Every event is marked is_demo.
+ * demo logins and 180 days of believable taps (so the 90-day view has a previous period). Every event is marked is_demo.
  * Safe to run again: structure is reused, demo events are replaced.
  * `npm run seed:demo`
  */
@@ -181,7 +181,9 @@ function buildEvents(tags: { id: string; storeId: string }[], storeBase: Map<str
   const rows: EventRow[] = [];
   const now = Date.now();
   const today = londonToday();
-  const DAYS = 90;
+  // 180 days, not 90: the dashboard's default 90-day view compares itself with the 90 days
+  // before it, and that comparison needs data to be shown. Change this one number to taste.
+  const DAYS = 180;
 
   // weekday multipliers, Sunday=0
   const dow = [0.35, 0.9, 0.9, 1.0, 1.05, 1.5, 1.45];

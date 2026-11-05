@@ -35,9 +35,13 @@ export async function proxy(request: NextRequest) {
   const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/set-password");
 
   if (!signedIn && !isAuthPage) {
+    // Keep the filters in the address (?range=7d&area=...) so a shared or bookmarked view
+    // survives signing in.
     const url = request.nextUrl.clone();
+    const next = pathname + request.nextUrl.search;
     url.pathname = "/login";
-    url.searchParams.set("next", pathname);
+    url.search = "";
+    url.searchParams.set("next", next);
     return NextResponse.redirect(url);
   }
   if (signedIn && pathname === "/login") {

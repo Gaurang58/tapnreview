@@ -60,3 +60,4 @@ A deactivated user sees nothing, even with a valid login. Nobody can delete stor
 - **Retiring a tag is permanent.** A retired tag cannot be un-retired or switched back on, and a printed code can never change.
 - **Reading back what you just created.** Read rules for cities and stores also allow whoever manages the parent, so creating a city or store and getting it back in one step works for area managers.
 - **Internal helper functions** are not callable through the public API, and trigger functions cannot be called at all.
+- **Read rules are written to be fast.** The rules on `tap_events`, `tags` and `stores` ask "is this store in my visible set?" in a form Postgres works out once per query rather than once per row. The first version did it per row (about 1 ms each) and timed out the Overview once there were thousands of taps. The rule itself is unchanged; a live test guards against the slowdown coming back.
