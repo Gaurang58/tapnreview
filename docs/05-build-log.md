@@ -50,3 +50,25 @@ Not yet verified (needs the real project): that Supabase accepts the migrations 
 
 - `npm install` needed a temporary cache folder (`--cache $TMPDIR/...`) because `~/.npm` has root-owned files. To fix permanently: `sudo chown -R 501:20 ~/.npm`.
 - The default (Turbopack) `next build` fails in the sandboxed session because it needs to open a local port; `next build --webpack` succeeds. It should be fine on your own terminal and on Vercel.
+
+## 5 November 2026 (evening): migrations applied to Supabase
+
+**Approved by Gaurang** after reviewing the migration check above. Applied to project `lmwinllphnamjotliwkw` (tapnreview, London `eu-west-2`, Postgres 17), which was confirmed empty first (no tables, no migrations).
+
+**What was applied, in order**
+
+| Migration | Contents |
+| --- | --- |
+| `schema` | Tables, indexes, triggers, RLS switched on, Realtime on `tap_events` |
+| `access` | Helper functions and all access policies, audit triggers |
+| `analytics` | The seven analytics functions |
+| `harden_functions` (new, file `..004`) | Found by Supabase's security advisor: trigger functions no longer callable from the API; search path pinned on four plain functions |
+| `lock_internal_helper` (new, file `..005`) | `area_id_for_store` is internal only |
+
+**Verified on the live project:** 9 tables, all with RLS on; 20 policies; `tap_events` is in the Realtime publication; anonymous users can call no helper that exposes data. All five migrations were also run through `npm run test:db` locally (85 checks pass).
+
+**Remaining advisor warnings (16, deliberate).** Supabase warns that signed-in users can call the access-rule helpers (`is_admin`, `can_view_store` and so on) through the API. These must be callable by signed-in users because the row-level policies use them, and each only answers a question about the caller's own access.
+
+**Note on migration history.** Applying through the Supabase tool recorded versions `20261105224342` to `...224508`-style timestamps, different from the filenames in `supabase/migrations/`. If `supabase db push` is used later it may try to re-apply them; run `supabase migration repair` first or keep applying through the tool. Two filenames (`..004`, `..005`) were written after the first three were applied.
+
+**Not yet done:** the live API access tests (`npm run test:access`) wait for the demo seed (milestone 7); nothing has been pushed to GitHub.

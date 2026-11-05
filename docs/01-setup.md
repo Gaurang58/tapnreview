@@ -33,7 +33,7 @@ Set these in `.env.local` locally and in Vercel (Settings, Environment Variables
 
 ## Database
 
-The database is described by the SQL files in `supabase/migrations/`, applied in order with `supabase db push` after `supabase login` and `supabase link --project-ref <ref>`. **Do not apply them until the access rules have been reviewed** (see the build log). To check the rules without touching Supabase at all, run `npm run test:db`.
+The database is described by the five SQL files in `supabase/migrations/`, applied in order with `supabase db push` after `supabase login` and `supabase link --project-ref <ref>` (see the build log for a note on migration history on the current project, where they are already applied). To check the rules without touching Supabase at all, run `npm run test:db`.
 
 ## Run locally
 
