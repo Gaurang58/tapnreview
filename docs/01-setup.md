@@ -60,3 +60,22 @@ Needs `SUPABASE_SECRET_KEY` and the `DEMO_*` values in `.env.local`. Only the No
 ## First admin
 
 The first Admin is created by the demo seed. For a real pilot, create the user in the Supabase dashboard (Authentication, Users, Add user) and add one `memberships` row with role `admin` and the organisation id, using the SQL editor.
+
+## Deploying to Vercel
+
+The live site is a Vercel project named `tap-review-demo`, built from the GitHub repository, at **https://tap-review-demo.vercel.app**. Every push to `main` deploys automatically. The project is pinned to the London region (`vercel.json`) so it sits next to the database.
+
+**One-off setup**
+
+1. **Connect GitHub to Vercel.** In Vercel: your avatar (top right), Account Settings, Authentication, Login Connections, Connect GitHub. Sign in as the GitHub account that owns the repository (`Gaurang58`).
+2. **Import the repository.** Add New, Project, find `Gaurang58/tapnreview`. If it isn't listed, press "Adjust GitHub App Permissions" and allow Vercel to see that repository. Set the project name to `tap-review-demo`. Framework should say Next.js.
+3. **Add the settings before deploying.** On the same screen, open Environment Variables, and drag your **`.env.vercel`** file onto the box (create it with `npm run vercel:env`). It holds five settings: the public address, the Supabase URL and keys, and the visitor-hash salt. The file stays on your computer and is ignored by git.
+4. Press **Deploy**. When it finishes, open the address Vercel shows. If it is not exactly `tap-review-demo.vercel.app`, re-run `npm run vercel:env -- https://THE-REAL-ADDRESS`, replace `PUBLIC_APP_URL` in Settings, Environment Variables, and redeploy.
+
+**Turn off public sign-ups in Supabase** (also one-off). Supabase dashboard, Authentication, Sign In / Providers, switch **off** "Allow new users to sign up". Accounts are created only through the invite screen.
+
+**After deploying:** the demo data lives in the same Supabase project, so it is already there. The physical card needs its NFC chip rewritten and a new QR sticker printed (see `docs/06-operations.md`).
+
+**Changing a setting later:** Vercel, Settings, Environment Variables, edit, then redeploy (Deployments, the three dots, Redeploy). Settings only take effect on a new deployment.
+
+**Rotating the Supabase secret key:** create the new key in Supabase, update `SUPABASE_SECRET_KEY` in `.env.local` and in Vercel, redeploy, then delete the old key.

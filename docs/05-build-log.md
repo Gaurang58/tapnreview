@@ -188,3 +188,19 @@ The secret key was added to `.env.local`, so the seed (planned for milestone 7) 
 **About the test browser:** it discards cookies whenever the local server restarts (a harmless plain test cookie vanished the same way), so I had to sign in again after each rebuild. It is a quirk of the tool, not of the app.
 
 **Not yet covered:** an automated accessibility scan and a manual keyboard pass over the new pages; the Insights page (heatmap across a whole scope, CSV export) and Audit log (milestone 9, optional); the Vercel deploy and the real card (milestone 8). Browsers other than the in-app one, and a real phone, have not been tried.
+
+## 5 November 2026 (night): milestone 8 preparation, deployment
+
+**Done**
+
+- `vercel.json` pins the site to London (`lhr1`), next to the database. Vercel's default is Washington, which would add a transatlantic delay to every database call (the redirect, the sign-in, every dashboard query).
+- `npm run build` now runs `next build --webpack`. That is the build I could verify here; the default (Turbopack) production build could not run in my sandbox, so its behaviour on Vercel was unproven. It can be switched back once it has been run elsewhere.
+- `npm run vercel:env` writes `.env.vercel` from `.env.local` with the public address changed to the Vercel site (five settings; values never printed; file readable only by you; ignored by git) for dragging into Vercel's Environment Variables box.
+- Docs: deployment steps in `docs/01-setup.md`.
+
+**Blocked on you (not something I could or should do)**
+
+- *Creating the Vercel project from the repository* failed: the Vercel account has no GitHub login connection. That has to be done by you in the Vercel dashboard (steps in `docs/01-setup.md`). The account has one team and no projects, so the old `tap-review-mvp` is not there and was not touched.
+- *Entering the Supabase secret key into Vercel* and *switching off public sign-ups in Supabase* are both things I must not do for you (entering keys into a service, changing a security setting). The first is one drag and drop; the second is one switch.
+
+**Not yet done:** the deployment itself, checking the live address, rewriting the card's NFC chip, printing the new QR sticker, and running the demo flow on the live site.
