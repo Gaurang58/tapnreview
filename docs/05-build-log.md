@@ -38,7 +38,7 @@ A dated record of what was built, the commands run, decisions made and problems 
 | `profiles_guard` would error if the JWT claims setting were an empty string | Added `nullif` |
 | Helper `area_id_for_store` was callable by anonymous users through the API (it reveals which area a store is in) | Revoked from public and anon (edited in place in migration 2, which had not been applied) |
 | Only unit tests of bots/hash/URL existed; no test of the handler itself | Added `tests/handle.test.ts` (11 cases: redirect, no-store, QR vs NFC, bots, duplicates, six inactive cases, bad codes, no raw IP stored) |
-| Access tests existed only as API tests needing a live project | Added `npm run test:db`: applies the three migrations to a throwaway local Postgres and runs 90+ assertions as each role (see `docs/07-testing.md`) |
+| Access tests existed only as API tests needing a live project | Added `npm run test:db`: applies the three migrations to a throwaway local Postgres and runs 85 assertions as each role (see `docs/07-testing.md`) |
 
 ### Migration check against the prompt's schema and access rules
 
