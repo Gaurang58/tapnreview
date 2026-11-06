@@ -211,7 +211,7 @@ export default async function HomePage() {
       </section>
 
       <footer className="mt-16 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--line)] pt-6 text-sm text-muted">
-        <span>Tap Review &middot; for TravelEx bureaux</span>
+        <span>Tap Review &middot; Tap or scan to review</span>
         {signedIn ? (
           <Link href="/overview" className="underline underline-offset-4">
             Open dashboard
