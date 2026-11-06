@@ -249,3 +249,11 @@ The project was re-imported as `tapnreview` from `Gaurang58/tapnreview` and is l
 **New: `npm run check:live`**: ten checks of the deployed site that need no login (right app serving, dashboard closed to the signed-out, friendly page for unknown cards, the real card opens the West Bridgford Google page, uncached, in 146 ms, sign-ups off). All ten pass on https://tapnreview-chi.vercel.app. It sends one bot-flagged request to the card, which is never counted.
 
 **Live demo run:** I cannot sign in to the live site on Gaurang's behalf, so the full demo flow on the live address remains a manual run; the checklist is in `docs/08-demo-script.md` Part C.
+
+## 6 November 2026 (midday): live board verified on the real address
+
+With Gaurang watching the Overview on https://tapnreview-chi.vercel.app (signed in), four requests were sent to the card's live address, 8 seconds apart: an iPhone NFC tap, an Android QR scan, the same iPhone again, and a WhatsApp link preview. The database logged them as a counted NFC tap, a counted QR scan, a repeat and a bot. **Gaurang confirmed the board showed exactly the NFC tap and the QR scan and neither of the other two**, so on the live site: redirect to the West Bridgford Google page, logging, repeat and bot filtering, and the live board all work end to end, with the server in London.
+
+The four events are real (not demo) and remain in the West Bridgford card's figures, together with earlier practice taps, until cleared.
+
+**Still to do by hand:** rewrite the card's NFC chip (do not lock it) and print the new QR sticker; the remaining steps of the live run sheet (`docs/08-demo-script.md` Part C: Tags page address check, create/move/retire a tag, invite, role logins); clear practice taps just before the demo.
