@@ -204,3 +204,13 @@ The secret key was added to `.env.local`, so the seed (planned for milestone 7) 
 - *Entering the Supabase secret key into Vercel* and *switching off public sign-ups in Supabase* are both things I must not do for you (entering keys into a service, changing a security setting). The first is one drag and drop; the second is one switch.
 
 **Not yet done:** the deployment itself, checking the live address, rewriting the card's NFC chip, printing the new QR sticker, and running the demo flow on the live site.
+
+## 6 November 2026: first Vercel deployment checked, and two mistakes caught
+
+After the project was imported in the Vercel dashboard I checked it through the Vercel API and the live address. Findings:
+
+1. **The project was linked to the wrong repository.** Its only deployment came from `Gaurang58/tap-review-mvp` (the old app: pull request #9, "Add dashboard QR generation"), not `Gaurang58/tapnreview`. The live site was the old "Tap Review MVP", and a card address returned an error. The old repository itself was not changed (Vercel only reads it), but the instruction was never to deploy from it. Fix: in Vercel, Settings, Git, disconnect and reconnect to `tapnreview` (or delete and re-import the project).
+2. **The public address is not `tap-review-demo.vercel.app`.** That name was already taken, so Vercel assigned `tap-review-demo-roan.vercel.app`. The `PUBLIC_APP_URL` I had put in `.env.vercel` was therefore wrong, and every QR code and NFC address built from it would have pointed at someone else's site. Fix: `npm run vercel:env` now defaults to the `-roan` address, the file was regenerated, and `PUBLIC_APP_URL` in Vercel must be edited to match.
+3. GitHub did not yet have the deployment settings (London region, webpack build); they are waiting on a push.
+
+The five environment variables did land in Vercel correctly (names present, all stored as sensitive, production and preview). Values cannot be read back, by design.

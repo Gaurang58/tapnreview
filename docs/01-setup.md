@@ -63,12 +63,12 @@ The first Admin is created by the demo seed. For a real pilot, create the user i
 
 ## Deploying to Vercel
 
-The live site is a Vercel project named `tap-review-demo`, built from the GitHub repository, at **https://tap-review-demo.vercel.app**. Every push to `main` deploys automatically. The project is pinned to the London region (`vercel.json`) so it sits next to the database.
+The live site is a Vercel project named `tap-review-demo`, built from the GitHub repository, at **https://tap-review-demo-roan.vercel.app**. (Vercel added "-roan" because the plain name `tap-review-demo.vercel.app` was already taken by someone else. Check the address under the project's Domains and use whatever it shows.) Every push to `main` deploys automatically. The project is pinned to the London region (`vercel.json`) so it sits next to the database.
 
 **One-off setup**
 
 1. **Connect GitHub to Vercel.** In Vercel: your avatar (top right), Account Settings, Authentication, Login Connections, Connect GitHub. Sign in as the GitHub account that owns the repository (`Gaurang58`).
-2. **Import the repository.** Add New, Project, find `Gaurang58/tapnreview`. If it isn't listed, press "Adjust GitHub App Permissions" and allow Vercel to see that repository. Set the project name to `tap-review-demo`. Framework should say Next.js.
+2. **Import the repository.** Add New, Project, find **`Gaurang58/tapnreview`** (the new repository; make sure it is not `tap-review-mvp`, which is the old app and must stay untouched). If it isn't listed, press "Adjust GitHub App Permissions" and allow Vercel to see that repository. Set the project name to `tap-review-demo`. Framework should say Next.js.
 3. **Add the settings before deploying.** On the same screen, open Environment Variables, and drag your **`.env.vercel`** file onto the box (create it with `npm run vercel:env`). It holds five settings: the public address, the Supabase URL and keys, and the visitor-hash salt. The file stays on your computer and is ignored by git.
 4. Press **Deploy**. When it finishes, open the address Vercel shows. If it is not exactly `tap-review-demo.vercel.app`, re-run `npm run vercel:env -- https://THE-REAL-ADDRESS`, replace `PUBLIC_APP_URL` in Settings, Environment Variables, and redeploy.
 
