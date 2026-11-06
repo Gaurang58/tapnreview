@@ -4,7 +4,7 @@
  * that file into Vercel (Project, Settings, Environment Variables). The file stays on
  * your computer and is ignored by git. Nothing is printed or sent anywhere.
  *
- *   npm run vercel:env                       (uses https://tap-review-demo-roan.vercel.app)
+ *   npm run vercel:env                       (uses https://tapnreview-chi.vercel.app)
  *   npm run vercel:env -- https://my.domain  (a different public address)
  */
 import { chmodSync, writeFileSync } from "node:fs";
@@ -12,9 +12,9 @@ import { config as loadEnv } from "dotenv";
 
 loadEnv({ path: ".env.local", quiet: true });
 
-const publicUrl = (process.argv[2] ?? "https://tap-review-demo-roan.vercel.app").replace(/\/+$/, "");
+const publicUrl = (process.argv[2] ?? "https://tapnreview-chi.vercel.app").replace(/\/+$/, "");
 if (!/^https:\/\/[^\s/]+$/.test(publicUrl)) {
-  console.error("The public address must start with https:// and have no path, e.g. https://tap-review-demo-roan.vercel.app");
+  console.error("The public address must start with https:// and have no path, e.g. https://tapnreview-chi.vercel.app");
   process.exit(1);
 }
 

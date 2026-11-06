@@ -214,3 +214,16 @@ After the project was imported in the Vercel dashboard I checked it through the 
 3. GitHub did not yet have the deployment settings (London region, webpack build); they are waiting on a push.
 
 The five environment variables did land in Vercel correctly (names present, all stored as sensitive, production and preview). Values cannot be read back, by design.
+
+## 6 November 2026 (just after midnight): the correct deployment is live
+
+The project was re-imported as `tapnreview` from `Gaurang58/tapnreview` and is live at **https://tapnreview-chi.vercel.app** (the earlier `tap-review-demo` project is gone). Checked from outside, without signing in:
+
+- Home and login pages are the new app; a signed-out visit to `/overview` goes to `/login?next=…`.
+- An unknown card code shows the friendly "not active" page; the real card's address redirects (302) to the West Bridgford Google review page, so the live site can read the database with the secret key.
+- Supabase public sign-ups are **off** (`disable_signup` is true), checked through Supabase's public settings.
+- The redirect answers in about 0.5 to 0.75 seconds from here. The edge is in London but the function was running in Washington (`lhr1::iad1`), because the build predates `vercel.json`; that is the cause and will change once the newer commit is pushed and redeployed.
+
+**Test taps created by this check** (real, not demo): three requests from the live address on the card's tag (one counted, two flagged as repeat) and one bot-flagged request. Earlier local tests also left a handful of real taps. They sit on the West Bridgford card and will show in its figures; they can be cleared before the demo.
+
+**Still open:** `PUBLIC_APP_URL` must read exactly `https://tapnreview-chi.vercel.app`; both versions of the env file I produced named a different address, and Vercel will not show its stored value, so it has to be set again explicitly. Until it is, the QR codes and NFC addresses shown in the dashboard would be wrong.
