@@ -139,3 +139,32 @@ Your phone can't reach `localhost`. Instead:
 | The card doesn't read on someone's phone | Use the QR code instead; ask them to hold the phone flat to the card's chip, with the case off |
 | The demo numbers look odd | Run `npm run seed:reset` then `npm run seed:demo` before starting (or the night before) |
 | Someone asks about other stores' Google links | Only West Bridgford has a real Google link; the others are placeholders, so avoid pressing "Test review link" on them |
+
+---
+
+## Part C: checking the live site
+
+### Automatic check (no login needed)
+
+```bash
+npm run check:live
+```
+
+This tests the deployed address from `PUBLIC_APP_URL` (or add `-- https://another-address`). It checks that the new app is serving, the dashboard is closed to signed-out visitors, an unknown card shows the friendly page, the real card opens the West Bridgford Google page quickly and uncached, and Supabase sign-ups are off. It sends one request to the card with a link-preview user agent, so it is logged as a bot and never counted. Run it the morning of the demo.
+
+### Manual run on the live address (needs a sign-in, about 5 minutes)
+
+Do this once the day before, with the physical card and two phones. Tick each line.
+
+1. [ ] Open the live address on your laptop. The home page shows **Sign in** (or "Signed in as…" if you left a session open).
+2. [ ] Sign in as **Admin**. Overview opens, shows **Live** on the tap board, and the date range reads 90 days.
+3. [ ] **Tags** page: the West Bridgford card's NFC address starts with the live address (not `localhost`, not an old one). The QR image loads.
+4. [ ] Tap the physical card with a phone. Google's review page for West Bridgford opens (close it; don't post). The tap board shows the new NFC tap within a few seconds.
+5. [ ] Scan the QR code on the card with an iPhone and an Android phone. Both open the same page; the board shows QR scans.
+6. [ ] Filter to **Area 1**, then **Nottingham**, and open **Nottingham West Bridgford**.
+7. [ ] **Tags**: create a tag, download its QR (SVG), move it to another store, then retire it (confirm the warning).
+8. [ ] **People**: invite a test person, open the link in a private window, set a password, then switch them off.
+9. [ ] Sign out. Open the live address again: it must show **Sign in**. Sign in as **Bureau manager**, then **Staff** (private window): each sees only West Bridgford.
+10. [ ] Before the demo, clear the practice taps: ask for the real taps to be wiped (see `docs/06-operations.md`) so the board starts clean.
+
+Anything that fails: note the step and the exact words on screen.

@@ -8,6 +8,7 @@
     "dev:webpack": "next dev --webpack",
     "demo:logins": "tsx scripts/demo-logins.ts",
     "vercel:env": "tsx scripts/make-vercel-env.ts",
+    "check:live": "tsx scripts/check-live.ts",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",

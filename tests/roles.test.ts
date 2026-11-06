@@ -75,3 +75,21 @@ describe("navigation", () => {
     expect(labels(admin)).toEqual(["Overview", "Tags", "Areas and stores", "People"]);
   });
 });
+
+import { safeNext, signOutTarget } from "@/lib/auth/redirects";
+
+describe("redirect targets", () => {
+  it("only ever follows same-site paths after sign-in", () => {
+    expect(safeNext("/overview?range=7d&live=poll")).toBe("/overview?range=7d&live=poll");
+    for (const bad of ["https://evil.example", "//evil.example", "/\\evil.example", "javascript:alert(1)", "", null, undefined, 42]) {
+      expect(safeNext(bad), String(bad)).toBe("/overview");
+    }
+  });
+  it("sign-out lands on the home page or the sign-in page, nothing else", () => {
+    expect(signOutTarget("/")).toBe("/");
+    expect(signOutTarget("/login")).toBe("/login");
+    for (const bad of ["https://evil.example", "//evil.example", "/overview", null, undefined]) {
+      expect(signOutTarget(bad), String(bad)).toBe("/login");
+    }
+  });
+});

@@ -1,15 +1,31 @@
 import Link from "next/link";
 import { Nfc, QrCode, BarChart3 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { SignOutButton, WhoAmI } from "@/components/auth/signed-in-panel";
+import { getSession } from "@/lib/auth/session";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await getSession();
+  const signedIn = session && session.memberships.length > 0 ? session : null;
   return (
     <main id="main" className="mx-auto flex min-h-dvh max-w-3xl flex-col px-5 py-8">
-      <header className="flex items-center justify-between">
+      <header className="flex flex-wrap items-center justify-between gap-3">
         <span className="text-lg font-semibold">Tap Review</span>
-        <Link href="/login" className={buttonVariants({ variant: "default" })}>
-          Sign in
-        </Link>
+        {signedIn ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <WhoAmI session={signedIn} />
+            <Link href="/overview" className={buttonVariants({ variant: "default", size: "sm" })}>
+              Open dashboard
+            </Link>
+            <SignOutButton to="/" variant="ghost">
+              Sign out
+            </SignOutButton>
+          </div>
+        ) : (
+          <Link href="/login" className={buttonVariants({ variant: "default" })}>
+            Sign in
+          </Link>
+        )}
       </header>
 
       <section className="mt-12">

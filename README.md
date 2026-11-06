@@ -37,6 +37,7 @@ cp .env.example .env.local   # then fill in the values (see docs/01-setup.md)
 npm run seed:demo            # sample data and four demo logins
 npm run dev:webpack          # http://localhost:3000
 npm run demo:logins          # prints the four logins (Admin, Area manager, Bureau manager, Staff)
+npm run check:live           # health check of the deployed site (no login needed)
 ```
 
 [docs/08-demo-script.md](docs/08-demo-script.md) explains how to try each role.

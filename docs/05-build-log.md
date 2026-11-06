@@ -227,3 +227,25 @@ The project was re-imported as `tapnreview` from `Gaurang58/tapnreview` and is l
 **Test taps created by this check** (real, not demo): three requests from the live address on the card's tag (one counted, two flagged as repeat) and one bot-flagged request. Earlier local tests also left a handful of real taps. They sit on the West Bridgford card and will show in its figures; they can be cleared before the demo.
 
 **Still open:** `PUBLIC_APP_URL` must read exactly `https://tapnreview-chi.vercel.app`; both versions of the env file I produced named a different address, and Vercel will not show its stored value, so it has to be set again explicitly. Until it is, the QR codes and NFC addresses shown in the dashboard would be wrong.
+
+## 6 November 2026 (morning): sign-in experience, and a live health check
+
+**Reported by Gaurang after using the live site:** someone who had signed in and then simply closed the tab, on opening the site again, saw a home page that looked signed out; pressing "Sign in" took them straight into the dashboard, as whichever role had been signed in, without any sign-in step or any hint of whose account it was.
+
+**Cause:** the session is meant to last (it is stored in a cookie and renews itself), but nothing on the home page showed it, and the sign-in page silently redirected signed-in people to the dashboard.
+
+**Fix**
+
+- Home page: shows "Signed in as <name> · <role>", **Open dashboard** and **Sign out** when signed in; "Sign in" only when signed out.
+- Sign-in page: no silent redirect. If already signed in it says so, names the account and offers **Continue** or **Sign out and use a different account**. The page the person wanted (including filters) is kept for Continue.
+- Sign out from the home page returns to the home page.
+- The proxy now also runs on the home page, so an expired hour-long token is renewed there too; otherwise the home page would have shown "Sign in" to someone who was in fact still signed in.
+- New unit tests for the redirect rules (same-site only).
+
+**Checked on a local build against the live database (staff login):** signed in, then opened the home page (shows "Signed in as Demo Staff · Staff", no "Sign in"), opened the sign-in page (shows the already-signed-in panel with the right "Continue" address, no password box), signed out from it (form returns), signed in again and signed out from the home page (lands on the home page showing "Sign in").
+
+**Not changed on purpose:** sessions still persist after the tab is closed. That is normal and convenient on a personal phone; on a shared bureau computer people should sign out (now one click on the home page). A forced automatic sign-out is a paid Supabase feature.
+
+**New: `npm run check:live`**: ten checks of the deployed site that need no login (right app serving, dashboard closed to the signed-out, friendly page for unknown cards, the real card opens the West Bridgford Google page, uncached, in 146 ms, sign-ups off). All ten pass on https://tapnreview-chi.vercel.app. It sends one bot-flagged request to the card, which is never counted.
+
+**Live demo run:** I cannot sign in to the live site on Gaurang's behalf, so the full demo flow on the live address remains a manual run; the checklist is in `docs/08-demo-script.md` Part C.

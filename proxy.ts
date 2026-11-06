@@ -32,7 +32,9 @@ export async function proxy(request: NextRequest) {
   const signedIn = Boolean(data?.claims);
 
   const { pathname } = request.nextUrl;
-  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/set-password");
+  // The home page is public, but it also runs through here so an expired sign-in is
+  // refreshed and the page can show who is signed in.
+  const isAuthPage = pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/set-password");
 
   if (!signedIn && !isAuthPage) {
     // Keep the filters in the address (?range=7d&area=...) so a shared or bookmarked view
@@ -44,17 +46,14 @@ export async function proxy(request: NextRequest) {
     url.searchParams.set("next", next);
     return NextResponse.redirect(url);
   }
-  if (signedIn && pathname === "/login") {
-    const url = request.nextUrl.clone();
-    url.pathname = "/overview";
-    url.search = "";
-    return NextResponse.redirect(url);
-  }
+  // A signed-in person who opens /login is NOT redirected: the page tells them who they
+  // are signed in as and lets them continue or switch account.
   return response;
 }
 
 export const config = {
   matcher: [
+    "/",
     "/overview/:path*",
     "/stores/:path*",
     "/tags/:path*",

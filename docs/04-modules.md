@@ -96,3 +96,13 @@ Switching a person off sets `is_active = false`, bans the login in Supabase so n
 **Wording:** taps and scans are always "interactions" or "intent to review", never reviews. There are no targets, ranks or leaderboards; the table starts in alphabetical order.
 
 **Changing it safely:** add a new filter in `filters.ts` first (with a test), then pass it through `rpcArgs`.
+
+### How being signed in looks (and why)
+
+A sign-in lasts until you sign out (it renews itself quietly), so closing the tab does not end it. To make that obvious rather than surprising:
+
+- The **home page** shows "Signed in as <name> · <role>" with **Open dashboard** and **Sign out**; only a signed-out visitor sees "Sign in".
+- The **sign-in page** never silently lets you through. If you are already signed in it says so, names the account, and offers **Continue to the dashboard** or **Sign out and use a different account**.
+- **Sign out** from the home page returns to the home page; from the sign-in page or the dashboard it returns to the sign-in page.
+- Only same-site addresses are ever followed after signing in or out (`lib/auth/redirects.ts`, unit-tested).
+- On a shared computer (for example at a bureau desk), staff should sign out when they finish. A shorter automatic sign-out is a Supabase paid-plan feature.
