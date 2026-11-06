@@ -281,3 +281,10 @@ The four events are real (not demo) and remain in the West Bridgford card's figu
 **Automated checks:** lint and typecheck clean; 56 unit tests; 95 database checks; 23 live-API tests (three new: who can read the audit log, and that nobody can write to it).
 
 **Things noticed in the live data (not changed):** the shared database now holds changes made on the live site that are not part of the seed: an area "Scotland" (edited), "Area 6", a city "Glassgow", an invitation for another admin account and one for a bureau-manager account, and the seeded **Nottingham Bulwell tag has been retired** (permanent), so that store has no active tag. Re-running `npm run seed:demo` would restore a tag for Bulwell and replace the demo taps; it would not touch real taps, areas, people or the other changes.
+
+## 6 November 2026 (evening): sign-out lands on the home page, fuller home page
+
+- **Sign-out:** the Sign out link in the dashboard (sidebar and phone header) now returns people to the home page, as the home page's own button already did. "Sign out and use a different account" on the sign-in page still goes to the sign-in form, because that is where the person is heading next.
+- **Home page:** from one short screen to a full landing page, in the same dark-green board theme: hero with sign-in and "See how it works" buttons; the customer journey in three steps; what the dashboard shows (live board, area/city/store comparison, trends, busiest times, CSV export, card management); the four roles and what each sees; and a "Fair by design" list (no review gating, no incentives, no staff names or leaderboards, no customer personal data, taps measure intent). Signed-in visitors see their name, role, "Open dashboard" and "Sign out" as before.
+- No numbers on the page are invented; there are no live figures, so nothing about the data is exposed to signed-out visitors.
+- Checked: lint, typecheck, 56 unit tests; the home page at desktop and 375 px width (no sideways scroll); sign-out posts redirect to `/`.

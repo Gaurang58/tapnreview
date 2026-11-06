@@ -50,6 +50,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 function SignOut() {
   return (
     <form action="/auth/signout" method="post">
+      <input type="hidden" name="to" value="/" />
       <button type="submit" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-[var(--fg)]">
         <LogOut className="size-4" aria-hidden="true" />
         Sign out
