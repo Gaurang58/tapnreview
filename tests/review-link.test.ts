@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { resolveReviewTarget, isAllowedReviewUrl } from "@/lib/redirect/url";
 import { newPublicCode, PUBLIC_CODE_PATTERN } from "@/lib/codes";
-import { addDays, londonToday } from "@/lib/dates";
+import { addDays, londonStartOfDay, londonToday } from "@/lib/dates";
 
 describe("resolveReviewTarget", () => {
   it("builds the standard link from a Place ID", () => {
@@ -51,6 +51,10 @@ describe("London dates", () => {
   it("adds days across month ends", () => {
     expect(addDays("2026-11-30", 1)).toBe("2026-12-01");
     expect(addDays("2026-03-01", -1)).toBe("2026-02-28");
+  });
+  it("finds the start of a London day in summer and winter", () => {
+    expect(londonStartOfDay("2026-07-01").toISOString()).toBe("2026-06-30T23:00:00.000Z"); // BST
+    expect(londonStartOfDay("2026-12-01").toISOString()).toBe("2026-12-01T00:00:00.000Z"); // GMT
   });
   it("uses the London calendar day, not UTC", () => {
     // 23:30 UTC on 1 July is 00:30 BST on 2 July.

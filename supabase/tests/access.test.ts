@@ -86,6 +86,32 @@ describe("anonymous visitors", () => {
   });
 });
 
+describe("audit log", () => {
+  it("admins see everything; nobody can write to it from the API", async () => {
+    const { data, error } = await admin.from("audit_log").select("id, details").limit(500);
+    expect(error).toBeNull();
+    expect(data!.length).toBeGreaterThan(0);
+    for (const client of [admin, areaManager, bureauManager, staff]) {
+      const attempt = await client.from("audit_log").insert({ action: "fake.entry", entity: "x", details: {} });
+      expect(attempt.error).not.toBeNull();
+    }
+  });
+
+  it("area managers see only changes tagged with their own area", async () => {
+    const { data } = await areaManager.from("audit_log").select("details").limit(500);
+    expect(data!.length).toBeGreaterThan(0);
+    for (const row of data!) expect((row.details as { area_id?: string }).area_id).toBe(area1Id);
+  });
+
+  it("bureau managers and staff see none of it", async () => {
+    for (const client of [bureauManager, staff]) {
+      const { data, error } = await client.from("audit_log").select("id").limit(5);
+      expect(error).toBeNull();
+      expect(data).toEqual([]);
+    }
+  });
+});
+
 describe("admin", () => {
   it("sees every store and area", async () => {
     const { data: stores } = await admin.from("stores").select("id");

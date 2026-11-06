@@ -38,3 +38,18 @@ export function scopeQuery(f: Filters): string {
   if (f.method) p.set("method", f.method);
   return p.toString();
 }
+
+/** Every active filter, as a query string (used by the CSV downloads). */
+export function filterQuery(f: Filters): string {
+  const p = new URLSearchParams();
+  p.set("range", f.range);
+  if (f.range === "custom") {
+    p.set("from", f.from);
+    p.set("to", f.to);
+  }
+  if (f.areaId) p.set("area", f.areaId);
+  if (f.cityId) p.set("city", f.cityId);
+  if (f.storeId) p.set("store", f.storeId);
+  if (f.method) p.set("method", f.method);
+  return p.toString();
+}

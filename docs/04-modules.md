@@ -12,7 +12,8 @@ Each part of the app lives in its own folder. This page says what each one is fo
 | Tags and QR | `app/(dashboard)/tags`, `app/api/qr` | Built (milestone 5) |
 | Demo data | `scripts/seed-demo.ts`, `scripts/reset-demo.ts` | Built |
 | Overview and tap board, Store detail | `app/(dashboard)/overview`, `app/(dashboard)/stores/[id]`, `components/dashboard`, `components/charts`, `app/api/live` | Built (milestone 6) |
-| Insights, Audit | | Later (optional) |
+| Insights and CSV export | `app/(dashboard)/insights`, `app/api/export` | Built (milestone 9) |
+| Audit log | `app/(dashboard)/audit`, `lib/audit` | Built (milestone 9) |
 
 ## Redirect
 
@@ -106,3 +107,23 @@ A sign-in lasts until you sign out (it renews itself quietly), so closing the ta
 - **Sign out** from the home page returns to the home page; from the sign-in page or the dashboard it returns to the sign-in page.
 - Only same-site addresses are ever followed after signing in or out (`lib/auth/redirects.ts`, unit-tested).
 - On a shared computer (for example at a bureau desk), staff should sign out when they finish. A shorter automatic sign-out is a Supabase paid-plan feature.
+
+## Insights and CSV export
+
+**Purpose:** when do customers tap or scan, and a file to take away. **Files:** `app/(dashboard)/insights/page.tsx`, `app/api/export/[kind]/route.ts`, `lib/analytics/insights.ts`, `lib/csv.ts`.
+
+- The page uses the same filters as the Overview (dates, area, city, store, method), so each person only gets choices their role allows. It shows the busiest day, the busiest hour, the weekend share, the three busiest slots, and the full day-by-hour heatmap in London time (with a "View as a table" alternative).
+- **Everyone with a login can open Insights**; staff see only their own store's figures.
+- **Two CSV downloads** for the chosen dates and filters: *Daily figures* (date, NFC taps, QR scans, total) and *Figures by store* (area, city, store, NFC taps, QR scans, total, NFC share, active tags, latest interaction). Repeats and link previews are not counted, matching the dashboard; the file includes demo data while demo data exists. Totals in the files match the Overview exactly.
+- Files open correctly in Excel (UTF-8 marker), and any text that a spreadsheet could read as a formula is defused (`lib/csv.ts`), so a store called `=HYPERLINK(...)` cannot do anything when opened.
+- The download routes read as the signed-in person, so Row Level Security decides what is in the file.
+
+## Audit log
+
+**Purpose:** who changed what, and when. **Files:** `app/(dashboard)/audit/page.tsx` and `layout.tsx`, `lib/audit/describe.ts`.
+
+- **Admins** see every change. **Area managers** see changes in their own areas. Bureau managers and staff have no audit log (a real 404, enforced in a layout so the check runs before the page starts loading, and enforced again by the database).
+- Each entry is a plain sentence (for example "Retired the tag “Nottingham Bulwell tag” (permanent)", "Moved the tag “T” from Nottingham West Bridgford to Nottingham Bulwell", "Invited a@b.co as Area manager"). Raw database content is never shown, and a store's Google link is described ("Changed the Google link for X"), not printed.
+- Filter by type (areas, cities, stores, tags, people) and by period (7, 30, 90 days, all time); 25 changes per page, newest first.
+- The seed script's changes show as "System". A person outside your view shows as "Another user" (an area manager cannot see an admin's name).
+- Taps and scans are not in the audit log; it records changes to the set-up and to access.

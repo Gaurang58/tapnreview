@@ -42,6 +42,8 @@ export type NavItem = {
   roles: Role[];
   /** Flip to true when the page exists, so no link ever leads to a 404. */
   built: boolean;
+  /** Shorter wording for the cramped phone navigation bar. */
+  short?: string;
 };
 
 const ALL: Role[] = ["admin", "area_manager", "bureau_manager", "staff"];
@@ -49,10 +51,10 @@ const ALL: Role[] = ["admin", "area_manager", "bureau_manager", "staff"];
 export const NAV: NavItem[] = [
   { href: "/overview", label: "Overview", icon: "overview", roles: ALL, built: true },
   { href: "/tags", label: "Tags", icon: "tags", roles: ["admin", "area_manager", "bureau_manager"], built: true },
-  { href: "/structure", label: "Areas and stores", icon: "structure", roles: ["admin", "area_manager"], built: true },
+  { href: "/structure", label: "Areas and stores", icon: "structure", roles: ["admin", "area_manager"], built: true, short: "Stores" },
   { href: "/people", label: "People", icon: "people", roles: ["admin", "area_manager", "bureau_manager"], built: true },
-  { href: "/insights", label: "Insights", icon: "insights", roles: ALL, built: false },
-  { href: "/audit", label: "Audit log", icon: "audit", roles: ["admin", "area_manager"], built: false },
+  { href: "/insights", label: "Insights", icon: "insights", roles: ALL, built: true },
+  { href: "/audit", label: "Audit log", icon: "audit", roles: ["admin", "area_manager"], built: true, short: "Audit" },
 ];
 
 export function navFor(memberships: Membership[]): NavItem[] {

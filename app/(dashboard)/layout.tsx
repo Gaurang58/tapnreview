@@ -7,7 +7,7 @@ import { requireSession } from "@/lib/auth/session";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession();
-  const items = navFor(session.memberships).map(({ href, label, icon }) => ({ href, label, icon }));
+  const items = navFor(session.memberships).map(({ href, label, icon, short }) => ({ href, label, icon, short }));
   const top = highestRole(session.memberships);
 
   return (

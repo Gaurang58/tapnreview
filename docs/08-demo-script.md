@@ -43,10 +43,12 @@ Sign in at http://localhost:3000/login. The first sign-in can take a few seconds
 
 | Role | Menu items | Overview shows | Should work | Should NOT work |
 | --- | --- | --- | --- | --- |
-| **Admin** | Overview, Tags, Areas and stores, People | All 3 areas and 12 stores | Add an area ("Areas and stores"), add cities, stores and tags anywhere, invite any role, switch people on and off | Nothing is blocked inside the organisation |
-| **Area manager** | Overview, Tags, Areas and stores, People | Area 1 only (Nottingham x2, Leicester, Derby) | Add a city or store in Area 1, create and move tags between Area 1 stores, invite Bureau managers and Staff for Area 1 stores | No "Add an area" box; no sight of Areas 2 and 3; can't invite an Admin or another Area manager |
-| **Bureau manager** | Overview, Tags, People | Nottingham West Bridgford only | Create, rename, switch off and retire tags for that store; invite **Staff** for that store | "Areas and stores" shows *page not found*; the invite form offers only Staff; can't move a tag to another store |
-| **Staff** | Overview only | Nottingham West Bridgford only | Look at the figures, chart, tap board and the store page | Tags, People and Areas and stores all show *page not found*; nothing can be edited |
+| **Admin** | Overview, Tags, Areas and stores, People, Insights, Audit log | All 3 areas and 12 stores | Add an area ("Areas and stores"), add cities, stores and tags anywhere, invite any role, switch people on and off | Nothing is blocked inside the organisation |
+| **Area manager** | Overview, Tags, Areas and stores, People, Insights, Audit log | Area 1 only (Nottingham x2, Leicester, Derby) | Add a city or store in Area 1, create and move tags between Area 1 stores, invite Bureau managers and Staff for Area 1 stores | No "Add an area" box; no sight of Areas 2 and 3; can't invite an Admin or another Area manager |
+| **Bureau manager** | Overview, Tags, People, Insights | Nottingham West Bridgford only | Create, rename, switch off and retire tags for that store; invite **Staff** for that store | "Areas and stores" and "Audit log" show *page not found*; the invite form offers only Staff; can't move a tag to another store |
+| **Staff** | Overview, Insights | Nottingham West Bridgford only | Look at the figures, chart, tap board and the store page | Tags, People, Areas and stores and Audit log all show *page not found*; nothing can be edited |
+
+**Insights** (all roles): the busiest day and hour, a day-by-hour heatmap, and two CSV downloads. The totals in the CSV match the Overview for the same dates. **Audit log** (Admin and Area manager): a sentence for each change; the Area manager sees only Area 1 changes.
 
 Quick extra checks that prove the walls are real:
 

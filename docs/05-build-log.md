@@ -257,3 +257,27 @@ With Gaurang watching the Overview on https://tapnreview-chi.vercel.app (signed 
 The four events are real (not demo) and remain in the West Bridgford card's figures, together with earlier practice taps, until cleared.
 
 **Still to do by hand:** rewrite the card's NFC chip (do not lock it) and print the new QR sticker; the remaining steps of the live run sheet (`docs/08-demo-script.md` Part C: Tags page address check, create/move/retire a tag, invite, role logins); clear practice taps just before the demo.
+
+## 6 November 2026 (afternoon): milestone 9, Insights and Audit log
+
+**Built**
+
+- **Insights** (`/insights`, all roles): busiest day, busiest hour, weekend share, top three slots, the day-by-hour heatmap, and two CSV downloads (daily figures, figures by store) for the chosen filters.
+- **Audit log** (`/audit`, admins and area managers): plain-English sentences for every change, filter by type and period, 25 per page. Raw database content is never shown.
+- Migration 10, applied: the audit read rule evaluated once per query (same performance fix as the event rules).
+- Navigation: Insights for everyone; Audit log for admins and area managers; short labels ("Stores", "Audit") so six items fit on a phone.
+
+**Checked in the browser (local build, live database)**
+
+- *Admin:* Insights shows a busiest day (Friday, 644 interactions in 30 days), hour, weekend share (24%), top slots and heatmap. The daily CSV sums to **3,224**, the by-store CSV sums to **3,224**, and the Overview tile says **3,224**. File names, headers (30 daily rows, 12 store rows) and the Excel marker are right. The audit log lists the real changes as sentences with no raw data.
+- *Area manager:* audit log shows only 17 Area 1 changes (none mentioning other areas); people outside their view appear as "Another user".
+- *Staff:* menu is Overview and Insights; the by-store CSV contains only West Bridgford.
+- *Bureau manager:* `/audit` and `/structure` are 404; Insights, People and Tags load.
+- *Phone width (375 px):* Insights has no sideways scrolling and the Insights tab highlights.
+- All four pages answer in about 0.4 to 0.5 seconds.
+
+**Problem found and fixed:** `/audit` returned HTTP 200 (with a not-found screen) to people who may not see it, because the page's loading skeleton starts streaming before its permission check runs. No audit data was in the response, but the status was wrong. The check now lives in a layout, which runs first, and they get a real 404 (re-checked).
+
+**Automated checks:** lint and typecheck clean; 56 unit tests; 95 database checks; 23 live-API tests (three new: who can read the audit log, and that nobody can write to it).
+
+**Things noticed in the live data (not changed):** the shared database now holds changes made on the live site that are not part of the seed: an area "Scotland" (edited), "Area 6", a city "Glassgow", an invitation for another admin account and one for a bureau-manager account, and the seeded **Nottingham Bulwell tag has been retired** (permanent), so that store has no active tag. Re-running `npm run seed:demo` would restore a tag for Bulwell and replace the demo taps; it would not touch real taps, areas, people or the other changes.

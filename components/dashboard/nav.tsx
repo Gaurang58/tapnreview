@@ -15,7 +15,7 @@ const ICONS = {
   audit: ScrollText,
 } as const;
 
-type Item = Pick<NavItem, "href" | "label" | "icon">;
+type Item = Pick<NavItem, "href" | "label" | "icon" | "short">;
 
 export function SideNav({ items }: { items: Item[] }) {
   const pathname = usePathname();
@@ -70,7 +70,7 @@ export function BottomNav({ items }: { items: Item[] }) {
                 )}
               >
                 <Icon className="size-5" aria-hidden="true" />
-                <span className="truncate">{item.label}</span>
+                <span className="max-w-full truncate">{item.short ?? item.label}</span>
               </Link>
             </li>
           );
