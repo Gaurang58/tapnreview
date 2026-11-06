@@ -12,7 +12,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="min-h-dvh md:grid md:grid-cols-[15rem_1fr]">
-      <aside className="hidden border-r bg-panel p-4 hairline md:flex md:flex-col md:gap-6">
+      {/* Sticky and full-height, so Sign out is always on screen, never at the foot of a long page. */}
+      <aside className="hidden border-r bg-panel p-4 hairline md:sticky md:top-0 md:flex md:h-dvh md:flex-col md:gap-6 md:self-start">
         <div>
           <Link href="/overview" className="text-lg font-semibold">
             Tap Review
@@ -20,9 +21,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
           {session.organisationName ? <p className="text-xs text-muted">{session.organisationName}</p> : null}
         </div>
         <SideNav items={items} />
-        <div className="mt-auto space-y-2 text-sm">
-          <p className="font-medium">{session.fullName}</p>
-          {top ? <Badge>{ROLE_LABELS[top]}</Badge> : null}
+        <div className="mt-auto space-y-3 border-t pt-4 text-sm hairline">
+          <div className="space-y-1">
+            <p className="truncate font-medium">{session.fullName}</p>
+            {top ? <Badge>{ROLE_LABELS[top]}</Badge> : null}
+          </div>
           <SignOut />
         </div>
       </aside>

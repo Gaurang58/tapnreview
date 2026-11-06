@@ -288,3 +288,11 @@ The four events are real (not demo) and remain in the West Bridgford card's figu
 - **Home page:** from one short screen to a full landing page, in the same dark-green board theme: hero with sign-in and "See how it works" buttons; the customer journey in three steps; what the dashboard shows (live board, area/city/store comparison, trends, busiest times, CSV export, card management); the four roles and what each sees; and a "Fair by design" list (no review gating, no incentives, no staff names or leaderboards, no customer personal data, taps measure intent). Signed-in visitors see their name, role, "Open dashboard" and "Sign out" as before.
 - No numbers on the page are invented; there are no live figures, so nothing about the data is exposed to signed-out visitors.
 - Checked: lint, typecheck, 56 unit tests; the home page at desktop and 375 px width (no sideways scroll); sign-out posts redirect to `/`.
+
+## 6 November 2026 (night): polish and role test
+
+- Footer wording changed to "for TravelEx bureaux".
+- **Sign out** is now always on screen: the sidebar is fixed to the window height, so it no longer sits at the foot of a long page. Sign out from the dashboard returns to the home page.
+- **Feel:** each page now eases in (a short fade and rise), buttons and links respond to a press, and colour changes are smooth. All of it is switched off for people who prefer reduced motion.
+- **Fault fixed:** a store a person may not see returned HTTP 200 (with a not-found screen) instead of 404; the check now runs first in a layout.
+- Full role test recorded in `docs/09-role-test-report.md`.
